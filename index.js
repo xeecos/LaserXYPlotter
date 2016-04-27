@@ -36,6 +36,11 @@ app.get('/move', (req, res) => {
     serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+"\n");
     res.send('ok');
 })
+app.get('/rect', (req, res) => {
+    serialPort.write("G90\n");
+    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+"\n");
+    res.send('ok');
+})
 app.get('/laser', (req, res) => {
     serialPort.write("M3 P"+(req.query.status?3:0)+"\n");
     res.send('ok');
