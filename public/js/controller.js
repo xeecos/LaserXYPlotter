@@ -683,7 +683,7 @@ function addAccessors($scope) {
   var laserStatus = false;
    $scope.switchLaser = function() {
 	laserStatus = !laserStatus;
-	$.get("/laser",{status:laserStatus}, function(result){
+	$.get("/laser",{status:laserStatus?1:0}, function(result){
         console.log(result);
     });
   };
