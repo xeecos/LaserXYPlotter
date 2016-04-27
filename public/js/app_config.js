@@ -1,4 +1,4 @@
-var kitchensink = angular.module('kitchensink', []);
+var kitchensink = angular.module('xyplotter', []);
 
 kitchensink.config(function($interpolateProvider) {
   $interpolateProvider
