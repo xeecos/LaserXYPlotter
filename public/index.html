@@ -216,6 +216,29 @@
 
       <p>
         <button class="btn" ng-click="addText()">Add text</button>
+        <input id='addsvg' type="file"></button>
+		<script>
+			function fileSelect(e) {
+				e = e || window.event;
+
+				var files = this.files;
+
+				for(var i = 0, f; f = files[i]; i++) {
+					var reader = new FileReader();
+					reader.onload = (function(file) {
+						return function(e) {
+							fabric.loadSVGFromString(this.result, function(objects, options) {
+							  var obj = fabric.util.groupSVGElements(objects, options);
+							  canvas.add(obj).centerObject(obj).renderAll();
+							  obj.setCoords();
+							});
+						};
+					})(f);
+					reader.readAsText(f);
+				}
+			}
+			document.getElementById('addsvg').addEventListener('change', fileSelect, false);
+		</script>
       </p>
 <!--
       <p>Add <strong>images</strong> to canvas:</p>

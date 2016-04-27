@@ -604,6 +604,9 @@ function addAccessors($scope) {
     _loadSVG(consoleSVGValue);
   };
 
+  $scope.loadSVGFile = function(file) {
+    _loadSVG(file);
+  };
   var _loadSVG = function(svg) {
     fabric.loadSVGFromString(svg, function(objects, options) {
       var obj = fabric.util.groupSVGElements(objects, options);
@@ -629,8 +632,11 @@ function addAccessors($scope) {
 
   $scope.loadJSON = function() {
     _loadJSON(consoleJSONValue);
-  };
-
+  }; 
+  $scope.loadDoc = function() 
+  {   
+  
+  }   
   $scope.refreshGCode = function() {
     consoleGCodeValue = canvas.toSVG();
 	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
