@@ -635,6 +635,11 @@ function addAccessors($scope) {
         console.log(result);
     });
   };
+  $scope.goZero = function() {
+	  $.get("/rect",{x:0,y:0}, function(result){
+        console.log(result);
+    });
+  };
   $scope.moveLeft = function() {
 	$.get("/move",{x:1,y:0}, function(result){
         console.log(result);
