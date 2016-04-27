@@ -23,7 +23,7 @@ function sendNext(){
 }
 var app = express();
 app.use(express.static(__dirname+'/public'));
-app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.json({limit: '128mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/gcode', (req, res) => {
