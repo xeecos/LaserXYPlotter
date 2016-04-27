@@ -558,7 +558,7 @@ function addAccessors($scope) {
 	consoleGCodeValue = canvas.toSVG();
 	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:800
+	  feedRate:500
         })
     return consoleGCodeValue;
   };
@@ -622,7 +622,7 @@ function addAccessors($scope) {
     consoleGCodeValue = canvas.toSVG();
 	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:800
+	  feedRate:500
         })
   };
   $scope.printGCode = function() {
