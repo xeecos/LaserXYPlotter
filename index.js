@@ -23,8 +23,8 @@ function sendNext(){
 }
 var app = express();
 app.use(express.static(__dirname+'/public'));
-app.use(bodyParser.json({limit: '128mb'}));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit: '256mb'}));
+app.use(bodyParser.urlencoded({ limit:'256mb',extended: true }));
 
 app.post('/gcode', (req, res) => {
     _gcodes = _gcodes.concat(req.body.data.split('\n'));
@@ -37,7 +37,7 @@ app.get('/move', (req, res) => {
     res.send('ok');
 })
 app.get('/laser', (req, res) => {
-    serialPort.write("M3 P"+(req.query.status?5:0)+"\n");
+    serialPort.write("M3 P"+(req.query.status?3:0)+"\n");
     res.send('ok');
 })
 app.get('/setzero', (req, res) => {
