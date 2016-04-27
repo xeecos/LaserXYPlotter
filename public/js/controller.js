@@ -676,7 +676,7 @@ function addAccessors($scope) {
 			  }
 		  }
 	  }
-	  $.get("/rect",{x:xx,y:yy}, function(result){
+	  $.get("/rect",{x:xMax,y:yMax}, function(result){
         console.log(result);
     });
   }
