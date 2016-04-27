@@ -173,8 +173,8 @@
 <div id="commands" ng-click="maybeLoadShape($event)">
 
   <ul class="nav nav-tabs">
-    <li><a href="#simple-shapes" data-toggle="tab">Simple</a></li>
-    <!--<li><a href="#svg-shapes" data-toggle="tab">SVG</a></li>-->
+     <!--<li><a href="#simple-shapes" data-toggle="tab">Simple</a></li>
+   <li><a href="#svg-shapes" data-toggle="tab">SVG</a></li>-->
     <li class="active"><a href="#object-controls-pane" data-toggle="tab">Controls</a></li>
     <!--<li><a href="#load-svg-pane" data-toggle="tab">Load SVG</a></li>
     <!--<li><a href="#execute-code" data-toggle="tab">Execute</a></li>
@@ -205,41 +205,7 @@
     </div>
 
     <div class="tab-pane" id="simple-shapes">
-      <p>Add <strong>simple shapes</strong> to canvas:</p>
-      <p>
-        <button type="button" class="btn rect" ng-click="addRect()">Rectangle</button>
-        <button type="button" class="btn circle" ng-click="addCircle()">Circle</button>
-        <button type="button" class="btn triangle" ng-click="addTriangle()">Triangle</button>
-        <button type="button" class="btn line" ng-click="addLine()">Line</button>
-        <button type="button" class="btn polygon" ng-click="addPolygon()">Polygon</button>
-      </p>
-
-      <p>
-        <button class="btn" ng-click="addText()">Add text</button>
-        <input id='addsvg' type="file"></button>
-		<script>
-			function fileSelect(e) {
-				e = e || window.event;
-
-				var files = this.files;
-
-				for(var i = 0, f; f = files[i]; i++) {
-					var reader = new FileReader();
-					reader.onload = (function(file) {
-						return function(e) {
-							fabric.loadSVGFromString(this.result, function(objects, options) {
-							  var obj = fabric.util.groupSVGElements(objects, options);
-							  canvas.add(obj).centerObject(obj).renderAll();
-							  obj.setCoords();
-							});
-						};
-					})(f);
-					reader.readAsText(f);
-				}
-			}
-			document.getElementById('addsvg').addEventListener('change', fileSelect, false);
-		</script>
-      </p>
+      
 <!--
       <p>Add <strong>images</strong> to canvas:</p>
       <p>
@@ -301,7 +267,41 @@
               Remove selected object/group
             </button>
           </p>
+<p>Add <strong>simple shapes</strong> to canvas:</p>
+      <p>
+        <button type="button" class="btn rect" ng-click="addRect()">Rectangle</button>
+        <button type="button" class="btn circle" ng-click="addCircle()">Circle</button>
+        <button type="button" class="btn triangle" ng-click="addTriangle()">Triangle</button>
+        <button type="button" class="btn line" ng-click="addLine()">Line</button>
+        <button type="button" class="btn polygon" ng-click="addPolygon()">Polygon</button>
+      </p>
 
+      <p>
+        <button class="btn" ng-click="addText()">Add text</button>
+        <input id='addsvg' type="file"></button>
+		<script>
+			function fileSelect(e) {
+				e = e || window.event;
+
+				var files = this.files;
+
+				for(var i = 0, f; f = files[i]; i++) {
+					var reader = new FileReader();
+					reader.onload = (function(file) {
+						return function(e) {
+							fabric.loadSVGFromString(this.result, function(objects, options) {
+							  var obj = fabric.util.groupSVGElements(objects, options);
+							  canvas.add(obj).centerObject(obj).renderAll();
+							  obj.setCoords();
+							});
+						};
+					})(f);
+					reader.readAsText(f);
+				}
+			}
+			document.getElementById('addsvg').addEventListener('change', fileSelect, false);
+		</script>
+      </p>
           <button class="btn btn-lock btn-object-action"
             ng-click="setHorizontalLock(!getHorizontalLock())"
             ng-class="{'btn-inverse': getHorizontalLock()}">
