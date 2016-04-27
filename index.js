@@ -42,7 +42,7 @@ app.get('/rect', (req, res) => {
     res.send('ok');
 })
 app.get('/laser', (req, res) => {
-    serialPort.write("M3 P"+(req.query.status?3:0)+"\n");
+    serialPort.write("M3 P"+(req.query.status*1==1?3:0)+"\n");
     res.send('ok');
 })
 app.get('/setzero', (req, res) => {
