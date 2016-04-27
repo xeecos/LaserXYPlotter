@@ -8,7 +8,7 @@ var _gcodes = [];
 serialPort.on('open', function () {
   console.log('serial opened!');
   serialPort.on('data', function (data) {
-    if(data.toLowerCase().indexOf('ok')>-1){
+    if(data.toString().toLowerCase().indexOf('ok')>-1){
       sendNext();
     }
   });
