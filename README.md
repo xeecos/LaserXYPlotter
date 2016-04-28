@@ -2,7 +2,7 @@
 ## Hardware
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
 
-LaserXYPlotter is a plotter project on Raspberry Pi using Node.js, fabric.js and svg2gcode.js. DXF is not supported at the moment. See the demo in action [here](https://youtu.be/pr0rrINsPKs).
+LaserXYPlotter is a plotter project on Raspberry Pi using Node.js, fabric.js and svg2gcode.js. DXF is not supported at the moment. See the demo in action [![Alt text for your video](http://img.youtube.com/vi/pr0rrINsPKs/0.jpg)](https://youtu.be/pr0rrINsPKs).
 ###MegaPi
 MegaPi can use the Marlin firmware.
 ## Setup
