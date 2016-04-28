@@ -21,15 +21,18 @@ MegaPi使用Marlin固件。
  `curl -L https://raw.github.com/midnightcodr/rpi_node_install/master/setup.sh`
 ### 通过Git将本项目拉取到树莓派上
 
- `git clone https://github.com/xeecos/LaserXYPlotter`.
+ `git clone https://github.com/xeecos/LaserXYPlotter`
 
 ### 安装 Node.js 相关包
 
- `npm install`
+ ```
+ cd LaserXYPlotter
+ npm install
+ ```
 
 ### 运行服务
 
- `node index.js`.
+ `node index.js`
 
 ## 使用
 
