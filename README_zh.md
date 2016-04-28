@@ -26,6 +26,7 @@ MegaPi使用Marlin固件。
 ### 安装 Node.js 相关包
 
  ```cd LaserXYPlotter
+ 
  npm install```
 
 ### 运行服务
