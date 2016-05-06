@@ -4,6 +4,7 @@ LaserXYPlotter是一个可以部署在树莓派上的激光雕刻机控制程序
 这里查看 [演示视频](http://v.youku.com/v_show/id_XMTU1MDgyMjg4OA==.html).
 
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
+![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/xy.gif)
 
 ## 硬件
 ###使用MegaPi
