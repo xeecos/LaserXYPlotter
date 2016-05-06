@@ -13,7 +13,7 @@ MegaPi使用Marlin固件。
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/10.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/11.jpg)
 ###使用Makeblock XY Plotter
-通过USB线连接到树莓派，实现硬件控制。需要修改index.js中连接的串口端口号。
+通过USB线连接到树莓派，实现硬件控制。串口使用/dev/ttyUSB*。
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/9.jpg)
 
 ## 软件部署
@@ -53,6 +53,9 @@ MegaPi使用Marlin固件。
 
  `http://your rpi's ip:8000`
 
+### 串口
+    * 树莓派2B使用/dev/ttyAMA0
+    * 树莓派3使用/dev/ttyS0
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/2.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/4.jpg)
