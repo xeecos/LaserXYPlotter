@@ -20,7 +20,15 @@ MegaPi使用Marlin固件。
     $ ssh pi@your rpi's ip
     
 ### 安装nodejs
- `curl -L https://raw.github.com/midnightcodr/rpi_node_install/master/setup.sh | bash -s 0.10.24`
+ ```
+ sudo apt-get update
+ sudo apt-get install gcc-4.8 g++-4.8
+ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 20
+ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.6 20
+ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+ wget http://node-arm.herokuapp.com/node_latest_armhf.deb sudo dpkg -i node_latest_armhf.deb node -v
+```
 ### 通过Git将本项目拉取到树莓派上
 
  `git clone https://github.com/xeecos/LaserXYPlotter`
