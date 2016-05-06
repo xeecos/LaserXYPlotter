@@ -1,21 +1,10 @@
 var SerialPort = require('serialport').SerialPort;
-var serialPort = new SerialPort('/dev/ttyAMA0', {
-  baudrate: 115200
-});
+var serialPort;
 var express = require('express');
 var bodyParser = require('body-parser')
 var _gcodes = [];
-serialPort.on('open', function () {
-  console.log('serial opened!');
-  serialPort.on('data', function (data) {
-    if(data.toString().toLowerCase().indexOf('ok')>-1){
-      sendNext();
-    }
-  });
-});
-serialPort.on('close', function () {
-  console.log('close');
-})
+var _buffers = "";
+
 function sendNext(){
   if(_gcodes.length>0){
     serialPort.write( _gcodes.shift()+"\n");
@@ -31,6 +20,29 @@ app.post('/gcode', (req, res) => {
     sendNext();
     res.send('ok');
 })
+app.post('/connect',(req,res) => {
+    serialPort = new SerialPort(req.body.data, {baudrate: 115200});
+    serialPort.on('open', function () {
+      console.log('serial opened!');
+      serialPort.on('data', function (data) {
+        _buffers += data.toString().toLowerCase();
+        if(_buffers.indexOf('ok')>-1){
+            _buffers = "";
+          sendNext();
+        }
+      });
+    });
+    serialPort.on('close', function () {
+      console.log('close');
+    })
+    res.send('ok');
+});
+app.post('/disconnect',(req,res) => {
+    if(serialPort){
+        serialPort.close();
+    }
+    serialPort = null;
+});
 app.get('/move', (req, res) => {
     serialPort.write("G91\n");
     serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+"\n");

@@ -465,6 +465,12 @@
 
     <div class="tab-pane" id="gcode-inout">
       <textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
+<p>
+<label>Serial Port:</label><select id="serialport"><option>/dev/ttyAMA0</option><option>/dev/ttyS0</option><option>/dev/ttyUSB0</option></select><button type="button" id="connectButton" class="btn btn-info" ng-click="connectSerial()">
+        Connect
+      </button>
+</p>
+<p><label>FeedRate:</label><input type="text" id="feedrate" value="500"/></p>
       <button type="button" class="btn btn-info" ng-click="refreshGCode()">
         Refresh
       </button>

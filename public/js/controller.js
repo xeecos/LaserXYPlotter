@@ -558,7 +558,7 @@ function addAccessors($scope) {
 	consoleGCodeValue = canvas.toSVG();
 	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:500
+	  feedRate:$("#feedrate").val()
         })
     return consoleGCodeValue;
   };
@@ -622,9 +622,22 @@ function addAccessors($scope) {
     consoleGCodeValue = canvas.toSVG();
 	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:500
+	  feedRate:$("#feedrate").val()
         })
   };
+$scope.connectSerial = function(){
+    if($("#connectButton").html().indexOf("Connect")>-1){
+        $("#connectButton").html("Disconnect");
+    $.post("/connect", {data: $("#serialport").val()}, function(result){
+        console.log(result);
+    });
+    }else{
+        $("#connectButton").html("Connect");
+        $.post("/disconnect", {data: $("#serialport").val()}, function(result){
+         console.log(result);
+        });
+    }
+};
   $scope.printGCode = function() {
 	$.post("/gcode", {data: consoleGCodeValue}, function(result){
         console.log(result);
