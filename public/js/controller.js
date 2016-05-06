@@ -626,6 +626,14 @@ function addAccessors($scope) {
 	      feedRate:$("#feedrate").val(),
           seekRate:$("#seekrate").val()
         })
+    $.post("/list", {}, function(result){
+            var ports = result.split(",");
+            $("#serialport").empty();
+            for(var i in ports){
+                var op = $('<option></option>').attr('value',ports[i]).text(ports[i]);
+                $("#serialport").append(op);
+            }
+        });
   };
 $scope.connectSerial = function(){
     if($("#connectButton").html().indexOf("Connect")>-1){

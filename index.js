@@ -1,4 +1,5 @@
-var SerialPort = require('serialport').SerialPort;
+var Serial = require('serialport');
+var SerialPort = Serial.SerialPort;
 var serialPort;
 var express = require('express');
 var bodyParser = require('body-parser')
@@ -37,6 +38,15 @@ app.post('/connect',(req,res) => {
     })
     res.send('ok');
 });
+app.post('/list',(req,res) => {
+ Serial.list(function (err, ports) {
+    var result = "";
+    ports.forEach(function(port) {
+       result+=port.comName+",";
+    });
+    res.send(result.substr(0,result.length-1));
+});   
+});
 app.post('/disconnect',(req,res) => {
     if(serialPort){
         serialPort.close();
@@ -45,12 +55,12 @@ app.post('/disconnect',(req,res) => {
 });
 app.get('/move', (req, res) => {
     serialPort.write("G91\n");
-    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+" F2000\n");
+    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+" F"+req.query.seekrate+"\n");
     res.send('ok');
 })
 app.get('/rect', (req, res) => {
     serialPort.write("G90\n");
-    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+" F2000\n");
+    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+" F"+req.query.seekrate+"\n");
     res.send('ok');
 })
 app.get('/laser', (req, res) => {
