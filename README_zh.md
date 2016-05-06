@@ -1,7 +1,7 @@
 # LaserXYPlotter
 LaserXYPlotter是一个可以部署在树莓派上的激光雕刻机控制程序，使用Node.js实现了串口通讯和http服务, 使用fabric.js实现了网页渲染和编辑SVG，使用svg2gcode.js将SVG图形转换为G代码。 DXF暂时还不支持。 
 
-查看演示视频 [这里](http://v.youku.com/v_show/id_XMTU1MDgyMjg4OA==.html).
+这里查看 [演示视频](http://v.youku.com/v_show/id_XMTU1MDgyMjg4OA==.html).
 
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
 
