@@ -558,7 +558,8 @@ function addAccessors($scope) {
 	consoleGCodeValue = canvas.toSVG();
 	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:$("#feedrate").val()
+	      feedRate:$("#feedrate").val(),
+          seekRate:$("#seekrate").val()
         })
     return consoleGCodeValue;
   };
@@ -622,19 +623,20 @@ function addAccessors($scope) {
     consoleGCodeValue = canvas.toSVG();
 	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:$("#feedrate").val()
+	      feedRate:$("#feedrate").val(),
+          seekRate:$("#seekrate").val()
         })
   };
 $scope.connectSerial = function(){
     if($("#connectButton").html().indexOf("Connect")>-1){
         $("#connectButton").html("Disconnect");
-    $.post("/connect", {data: $("#serialport").val()}, function(result){
-        console.log(result);
-    });
+        $.post("/connect", {data: $("#serialport").val()}, function(result){
+            console.log(result);
+        });
     }else{
         $("#connectButton").html("Connect");
         $.post("/disconnect", {data: $("#serialport").val()}, function(result){
-         console.log(result);
+            console.log(result);
         });
     }
 };

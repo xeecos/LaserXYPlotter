@@ -45,12 +45,12 @@ app.post('/disconnect',(req,res) => {
 });
 app.get('/move', (req, res) => {
     serialPort.write("G91\n");
-    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+"\n");
+    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+" F2000\n");
     res.send('ok');
 })
 app.get('/rect', (req, res) => {
     serialPort.write("G90\n");
-    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+"\n");
+    serialPort.write("G1 X"+req.query.x+" Y"+req.query.y+" F2000\n");
     res.send('ok');
 })
 app.get('/laser', (req, res) => {
