@@ -27,7 +27,7 @@ With Raspberry Pi and your computer on the same Wi-Fi network, it is also possib
 
 ### Running the Node.js server
 
-* Run the server by typing `node index.js`.
+* Run the server by typing `node server.js`.
 
 #### Viewing the control page
 

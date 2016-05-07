@@ -12,7 +12,7 @@
 export NODE_PATH=/home/pi/LaserXYPlotter/node_modules 
 case $1 in
         start)
-               node /home/pi/LaserXYPlotter/index.js
+               node /home/pi/LaserXYPlotter/server.js
                 ;;
         stop)
                 kill $(ps aux | grep -m 1 'node' | awk '{ print $2 }')

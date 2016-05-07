@@ -45,7 +45,7 @@ MegaPi使用Marlin固件。
 
 ### 运行服务
 
- `node index.js`
+ `node server.js`
 
 ## 使用
 
