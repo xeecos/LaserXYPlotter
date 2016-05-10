@@ -52,6 +52,7 @@ app.post('/disconnect',(req,res) => {
         serialPort.close();
     }
     serialPort = null;
+    res.send("ok");
 });
 app.get('/move', (req, res) => {
     serialPort.write("G91\n");
