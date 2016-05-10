@@ -1,10 +1,9 @@
 # LaserXYPlotter
 
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
-LaserXYPlotter is a laser engraving control program that can work with Raspberry Pi. It can use serial communication and http service with Node.js. Also, it can render web pages and edit SVG through fabric.js. What’s more, it can transfer SVG image into G code by svg2gcode.js. But it does not support DXF yet.Here is the video.
+LaserXYPlotter is a laser engraving control program that can work with Raspberry Pi. It can use serial communication and http service with Node.js. Also, it can render web pages and edit SVG through fabric.js. What’s more, it can transfer SVG image into G code by svg2gcode.js. But it does not support DXF yet.Here is the [video](https://youtu.be/pr0rrINsPKs).
 [![video](http://img.youtube.com/vi/pr0rrINsPKs/0.jpg)](https://youtu.be/pr0rrINsPKs).
 
-![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/xy.gif)
 
 ## Hardware
