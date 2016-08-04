@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="css/prism.css">
 <link rel="stylesheet" href="css/bootstrap.css">
 <link rel="stylesheet" href="css/kitchensink.css">
+<link rel="stylesheet" type="text/css" href="css/ruler.css">
+<script type="text/javascript" src="js/rulers.js"></script>
+<script type="text/javascript" src="js/ruler.js"></script>
 <script src="lib/prism.js"></script>
 <script src="lib/svg2gcode.js"></script>
 <script src="lib/SVGReader.js"></script>
@@ -31,16 +34,19 @@
 <div style="position:relative;width:604px;float:left;" id="canvas-wrapper">
 
 <div id="canvas-controls">
-<div id="complexity">
-Number of Paths:
-<strong>{[ canvas.complexity() ]}</strong>
-</div>
 
 <div id="canvas-background">
 </div>
 </div>
 
-<canvas id="canvas" width="600" height="600"></canvas>
+<canvas id="canvas" width="585" height="608" ></canvas>
+<canvas id="ruler" class='ruler' width="602" height="625" style="z-index: -1;"></canvas>
+
+<div id="complexity">
+Number of Paths:
+<strong>{[ canvas.complexity() ]}</strong>
+<span id="position-label">x:0 y:0</span>
+</div>
 
 <div id="color-opacity-controls" ng-show="canvas.getActiveObject()">
 
@@ -84,9 +90,11 @@ Number of Paths:
 
 <div class="tab-pane active" id="object-controls-pane">
 <div id="global-controls">
-
-<p>
-<button class="btn btn-danger clear" ng-click="confirmClear()">Clear canvas</button>
+<p><button class="file btn btn-success"><input id='addsvg' type="file" >Import SVG File</input></button>
+<span style="position:relative;top:-30px;left:200px;display:block;">
+	 <button class="btn btn-info" id="remove-selected" ng-click="removeSelected()">Remove Selected</button>
+	<button class="btn btn-danger clear" ng-click="confirmClear()">Clear Canvas</button>
+	</span>
 </p>
 </div>
 
@@ -94,13 +102,9 @@ Number of Paths:
 
 <div style="margin-top:10px;">
 <p>
-<button class="btn btn-object-action" id="remove-selected"
-ng-click="removeSelected()">
-Remove selected object/group
-</button>
+
 </p>
 <p>
-<input id='addsvg' type="file"></button>
 <script>
 function fileSelect(e) {
 e = e || window.event;
@@ -179,8 +183,8 @@ Save
 
 <div class="tab-pane" id="gcode-inout">
 <textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
-<select id="serialport" style="width:120px;margin-top:10px;"></select>
-<button id="connectBt" onClick="onConnect();">Connect</button>
+<select id="serialport" style="width:105px;margin-top:10px;"></select>
+<button id="connectBt" class="btn btn-success"  onClick="onConnect();">Connect</button>
 <select id="speed" style="width:60px;margin-top:10px;" ng-model="speedSelected" ng-change="speedChanged()">
 	<option value="50">50</option>
 	<option value="100">100</option>
@@ -193,11 +197,11 @@ Save
 <button type="button" class="btn btn-info" ng-click="refreshGCode()">
 Refresh
 </button>
-<button type="button" class="btn btn-info" ng-click="printGCode()">
-Print
-</button>
 <button type="button" class="btn btn-info" ng-click="previewArea()">
 Max 
+</button>
+<button type="button" class="btn btn-success" ng-click="printGCode()">
+Start
 </button>
 <p style="margin-top:5px;">
 <button type="button" class="btn btn-info" ng-click="moveLeft()">
@@ -212,13 +216,13 @@ Y+
 <button type="button" class="btn btn-info" ng-click="moveDown()">
 Y-
 </button>
+<button type="button" class="btn btn-info" ng-click="goZero()">
+Go Home
+</button>
 <button type="button" class="btn btn-info" ng-click="setZero()">
 Set Home
 </button>
-<button type="button" class="btn btn-info" ng-click="goZero()">
-Home
-</button>
-<button type="button" id="switchLaser" class="btn btn-info" ng-click="switchLaser()">
+<button type="button" id="switchLaser" class="btn btn-warning" ng-click="switchLaser()">
 Laser On
 </button>
 </p>
@@ -340,8 +344,14 @@ canvases[i].calcOffset();
 }
 });
 })();
+document.onmousedown = function(event)
+{
+  if(event.button==2)
+   {
+     return false;    
+   }
+}
 </script>
-
 
 </body>
 </html>

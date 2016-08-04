@@ -1,0 +1,15 @@
+.ruler {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: -1;
+}
+#position-label{
+	position: relative;
+	top:-22px;
+	left:500px;
+	color:#a8a8a8;
+	text-align: right;
+	width:100px;
+	display:block;
+}

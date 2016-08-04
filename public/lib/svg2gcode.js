@@ -68,7 +68,7 @@ function svg2gcode(svg, settings) {
       'F' + settings.seekRate
     ].join(' '));
 	
-	gcode.push('M3 P180');
+	gcode.push('M3 P200');
     for (var p = settings.passWidth; p<=settings.materialWidth; p+=settings.passWidth) {
 
       // begin the cut by dropping the tool to the work

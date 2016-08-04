@@ -1,4 +1,10 @@
-body { font-family: "Open Sans", sans-serif !important; margin: 0; font-size: 14px !important; line-height: 1.5 !important; color: #333; }
+body { 
+  
+	color:#a0a0a0;
+	overflow: hidden;
+	background-color: #333;
+  font-family: "Open Sans", sans-serif !important; margin: 0; font-size: 14px !important; line-height: 1.5 !important; 
+ }
 
 a:hover, a:focus { text-decoration: none; }
 
@@ -106,3 +112,27 @@ b.bench { font-family: monospace; font-size: 18px; background: #ffc; padding: 0 
 .team .bio { width: 600px; display: inline-block; vertical-align: top; margin-left: 20px; }
 .team .bio p:first-child { margin-top: 0; }
 .team img { padding: 3px; border: 1px solid #ccc; }
+.file {
+    position: relative;
+    display: inline-block;
+    background: #D0EEFF;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+}
+.file input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.file:hover {
+    background: #AADFFD;
+    color: #004974;
+    text-decoration: none;
+}

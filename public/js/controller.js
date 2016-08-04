@@ -627,6 +627,7 @@ function addAccessors($scope) {
 	        feedRate:speed
         })
   };
+
 var _gcodes = [];
 $scope.sendNext = function(){
   if(_gcodes.length>0){
@@ -649,6 +650,9 @@ $scope.convertStringToArrayBuffer=function(str) {
 	}
 	return buf;
 }
+$scope.resetGCode = function(){
+  _gcodes = [];
+}
 $scope.printGCode = function() {
 	_gcodes = consoleGCodeValue.split("\n");
   this.sendNext();
@@ -662,20 +666,20 @@ $scope.printGCode = function() {
   };
   $scope.moveLeft = function() {
     this.sendGCode("G91\n");
-    this.sendGCode("G1 X10 Y0\n");
+    this.sendGCode("G1 X5 Y0\n");
   };
   $scope.moveRight = function() {
     this.sendGCode("G91\n");
-    this.sendGCode("G1 X-10 Y0\n");
+    this.sendGCode("G1 X-5 Y0\n");
   };
   $scope.moveUp = function() {
 	
     this.sendGCode("G91\n");
-    this.sendGCode("G1 X0 Y1\n");
+    this.sendGCode("G1 X0 Y5\n");
   };
   $scope.moveDown = function() {
     this.sendGCode("G91\n");
-    this.sendGCode("G1 X0 Y-1\n");
+    this.sendGCode("G1 X0 Y-5\n");
   };
 $scope.previewArea = function() {
 	  var arr = consoleGCodeValue.split('\n');
@@ -733,8 +737,15 @@ $scope.previewArea = function() {
 
   initCustomization();
 
-  
-
+  $scope.refreshSerialPort = function(){
+    $("#serialport").empty();
+    chrome.serial.getDevices(function(ports){
+    for(var i=0;i<ports.length;i++){
+      var op = $('<option></option>').attr('value',ports[i].path).text(ports[i].path);
+      $("#serialport").append(op);
+    }
+  });  
+  }
 
   $scope.getFreeDrawingMode = function() {
     return canvas.isDrawingMode;
@@ -941,18 +952,13 @@ kitchensink.controller('CanvasControls', function($scope) {
   addAccessors($scope);
   watchCanvas($scope);
 
-  $("#serialport").empty();
-  chrome.serial.getDevices(function(ports){
-  for(var i=0;i<ports.length;i++){
-    var op = $('<option></option>').attr('value',ports[i].path).text(ports[i].path);
-    $("#serialport").append(op);
-  }
-  });  
+  $scope.refreshSerialPort();
 });
 var connectId = -1;
 function onConnect(){
 	if($("#connectBt").html()=="Disconnect"){
 		setTimeout(function(){
+      self.resetGCode();
 			chrome.serial.disconnect(connectId,function(result){
 				connectId = -1;
 				$("#connectBt").html("Connect");

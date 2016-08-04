@@ -1,12 +1,17 @@
 {
   "name": "LaserWeb",
   "main": "public/index.html",
-  "background":"index.js",
+  "background": "index.js",
+  "version":"1.0.0",
   "window": {
+    "icon": "assets/icon.png",
     "frame": true,
     "transparent": false,
-    "width":1100,
-    "height":665,
-    "resizable":false
+    "width": 1100,
+    "height": 665,
+    "resizable": false
+  },
+  "devDependencies": {
+    "nw-builder": "^2.2.6"
   }
 }

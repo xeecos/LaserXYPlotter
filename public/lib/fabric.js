@@ -9653,6 +9653,8 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
      * @param {Event} e Event object fired on mousemove
      */
     _onMouseMove: function (e) {
+
+			$("#position-label").html("x="+(e.clientX-26)+" y="+(e.clientY-26));
       !this.allowTouchScrolling && e.preventDefault && e.preventDefault();
       this.__onMouseMove(e);
     },
