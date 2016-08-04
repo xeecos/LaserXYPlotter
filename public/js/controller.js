@@ -555,10 +555,11 @@ function addAccessors($scope) {
     consoleJSONValue = value;
   };
   $scope.getConsoleGCode = function() {
-	consoleGCodeValue = canvas.toSVG();
-	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
+	  consoleGCodeValue = canvas.toSVG();
+    var speed = $("#speed option:selected" ).val();
+	  consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:500
+	        feedRate:speed
         })
     return consoleGCodeValue;
   };
@@ -620,47 +621,63 @@ function addAccessors($scope) {
   }   
   $scope.refreshGCode = function() {
     consoleGCodeValue = canvas.toSVG();
-	consoleGCodeValue = svg2gcode(consoleGCodeValue, {
+    var speed = $("#speed option:selected" ).val();
+	  consoleGCodeValue = svg2gcode(consoleGCodeValue, {
           scale : 0.1,
-	  feedRate:500
+	        feedRate:speed
         })
   };
-  $scope.printGCode = function() {
-	$.post("/gcode", {data: consoleGCodeValue}, function(result){
-        console.log(result);
-    });
+var _gcodes = [];
+$scope.sendNext = function(){
+  if(_gcodes.length>0){
+    this.sendGCode( _gcodes.shift()+"\n");
+
+  }
+}
+$scope.sendGCode = function(cmd){
+  if(connectId!=-1){
+    console.log(cmd);
+	  chrome.serial.send(connectId, this.convertStringToArrayBuffer(cmd), function(result){});
+  }
+}
+
+$scope.convertStringToArrayBuffer=function(str) {
+	var buf=new ArrayBuffer(str.length);
+	var bufView=new Uint8Array(buf);
+	for (var i=0; i<str.length; i++) {
+		bufView[i]=str.charCodeAt(i);
+	}
+	return buf;
+}
+$scope.printGCode = function() {
+	_gcodes = consoleGCodeValue.split("\n");
+  this.sendNext();
   };
   $scope.setZero = function() {
-	$.get("/setzero", function(result){
-        console.log(result);
-    });
+    this.sendGCode("G92 X0 Y0 Z0\n");
   };
-  $scope.goZero = function() {
-	  $.get("/rect",{x:0,y:0}, function(result){
-        console.log(result);
-    });
+   $scope.goZero = function() {
+    this.sendGCode("G90\n");
+    this.sendGCode("G1 X0 Y0\n");
   };
   $scope.moveLeft = function() {
-	$.get("/move",{x:1,y:0}, function(result){
-        console.log(result);
-    });
+    this.sendGCode("G91\n");
+    this.sendGCode("G1 X10 Y0\n");
   };
   $scope.moveRight = function() {
-	$.get("/move",{x:-1,y:0}, function(result){
-        console.log(result);
-    });
+    this.sendGCode("G91\n");
+    this.sendGCode("G1 X-10 Y0\n");
   };
   $scope.moveUp = function() {
-	$.get("/move",{x:0,y:1}, function(result){
-        console.log(result);
-    });
+	
+    this.sendGCode("G91\n");
+    this.sendGCode("G1 X0 Y1\n");
   };
   $scope.moveDown = function() {
-	$.get("/move",{x:0,y:-1}, function(result){
-        console.log(result);
-    });
+    this.sendGCode("G91\n");
+    this.sendGCode("G1 X0 Y-1\n");
   };
-  $scope.previewArea = function() {
+$scope.previewArea = function() {
 	  var arr = consoleGCodeValue.split('\n');
 	  var xMax = 0;
 	  var yMax = 0;
@@ -676,17 +693,20 @@ function addAccessors($scope) {
 			  }
 		  }
 	  }
-	  $.get("/rect",{x:xMax,y:yMax}, function(result){
-        console.log(result);
-    });
+	  
+    this.sendGCode("G90\n");
+    this.sendGCode("G1 X"+xMax+" Y"+yMax+"\n");
   }
   var laserStatus = false;
-   $scope.switchLaser = function() {
+ $scope.switchLaser = function() {
 	laserStatus = !laserStatus;
-	$.get("/laser",{status:laserStatus?1:0}, function(result){
-        console.log(result);
-    });
+    this.sendGCode("M3 P"+(laserStatus==true?3:0)+"\n");
+    $("#switchLaser").html(laserStatus?"Laser Off":"Laser On");
   };
+  $scope.speedChanged = function(){
+    this.refreshGCode();
+  }
+  $scope.speedSelected = "500";
   var _loadJSON = function(json) {
     canvas.loadFromJSON(json, function(){
       canvas.renderAll();
@@ -912,11 +932,49 @@ function watchCanvas($scope) {
     .on('selection:cleared', updateScope);
 }
 
+var self;
 kitchensink.controller('CanvasControls', function($scope) {
-
+  self = $scope;
   $scope.canvas = canvas;
   $scope.getActiveStyle = getActiveStyle;
 
   addAccessors($scope);
   watchCanvas($scope);
+
+  $("#serialport").empty();
+  chrome.serial.getDevices(function(ports){
+  for(var i=0;i<ports.length;i++){
+    var op = $('<option></option>').attr('value',ports[i].path).text(ports[i].path);
+    $("#serialport").append(op);
+  }
+  });  
 });
+var connectId = -1;
+function onConnect(){
+	if($("#connectBt").html()=="Disconnect"){
+		setTimeout(function(){
+			chrome.serial.disconnect(connectId,function(result){
+				connectId = -1;
+				$("#connectBt").html("Connect");
+			});
+		},1000);
+		return;
+	}
+    var port = $("#serialport option:selected" ).val();
+	chrome.serial.connect(port, {bitrate: 115200},  function(connectionInfo) {
+		connectId = connectionInfo.connectionId;
+		$("#connectBt").html("Disconnect");
+		setTimeout(function(){
+
+		},1000);
+	});
+}
+chrome.serial.onReceive.addListener(onReceiveCallback);
+
+function onReceiveCallback(res){
+  var str = String.fromCharCode.apply(null, new Uint8Array(res.data));
+  console.log(str);
+	if(str.indexOf("ok")>-1){
+    self.sendNext();
+  }
+};

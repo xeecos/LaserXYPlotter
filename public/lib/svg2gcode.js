@@ -14,7 +14,7 @@ function svg2gcode(svg, settings) {
 
   var
   scale=function(val) {
-    return val * settings.scale
+    return Math.floor(val * settings.scale*100)/100;
   },
   paths = SVGReader.parse(svg, {}).allcolors,
   gcode,
