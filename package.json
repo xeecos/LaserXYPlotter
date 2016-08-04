@@ -1,0 +1,12 @@
+{
+  "name": "LaserWeb",
+  "main": "public/index.html",
+  "background":"index.js",
+  "window": {
+    "frame": true,
+    "transparent": false,
+    "width":1100,
+    "height":665,
+    "resizable":false
+  }
+}
