@@ -1,5 +1,5 @@
 {
-  "name": "LaserWeb",
+  "name": "LaserPlotter",
   "main": "public/index.html",
   "background": "index.js",
   "version":"1.0.0",
