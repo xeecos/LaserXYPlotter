@@ -1,0 +1,24 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          LaserXYPlotter
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: start LaserXYPlotter
+# Description:       start LaserXYPlotter
+### END INIT INFO
+export NODE_PATH=/home/pi/LaserXYPlotter/node_modules 
+case $1 in
+        start)
+               node /home/pi/LaserXYPlotter/server.js
+                ;;
+        stop)
+                kill $(ps aux | grep -m 1 'node' | awk '{ print $2 }')
+				;;
+        *)
+                echo "Usage: $0 (start|stop)"
+                ;;
+esac
+exit 0

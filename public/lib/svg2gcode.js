@@ -128,7 +128,7 @@ function svg2gcode(svg, settings) {
   gcode.push('M3 P0');
 
   // go home
-  gcode.push('G1 X0 Y0 F800');
+  gcode.push('G1 X0 Y0 F'+ settings.seekRate);
 
   return gcode.join('\n');
 }
