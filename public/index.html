@@ -70,12 +70,12 @@ Number of Paths:
 
 <ul class="nav nav-tabs">
 <!--<li><a href="#simple-shapes" data-toggle="tab">Simple</a></li>
-<li><a href="#svg-shapes" data-toggle="tab">SVG</a></li>-->
-<li class="active"><a href="#object-controls-pane" data-toggle="tab">SVG</a></li>
+<li><a href="#svg-shapes" data-toggle="tab">SVG</a></li>
+<li class="active"><a href="#object-controls-pane" data-toggle="tab">SVG</a></li>-->
 <!--<li><a href="#load-svg-pane" data-toggle="tab">Load SVG</a></li>
 <!--<li><a href="#execute-code" data-toggle="tab">Execute</a></li>
 <!--<li><a href="#json-inout" data-toggle="tab">JSON</a></li>-->
-<li><a href="#gcode-inout" data-toggle="tab">GCode</a></li>
+<li class="active" ><a href="#gcode-inout" data-toggle="tab">GCode</a></li>
 </ul>
 
 <div class="tab-content">
@@ -91,14 +91,9 @@ Number of Paths:
 
 </div>
 
-<div class="tab-pane active" id="object-controls-pane">
+<div class="tab-pane" id="object-controls-pane">
 <div id="global-controls">
-<p><button class="file btn btn-success"><input id='addsvg' type="file" >Import SVG File</input></button>
-<span style="position:relative;top:-30px;left:200px;display:block;">
-	 <button class="btn btn-info" id="remove-selected" ng-click="removeSelected()">Remove Selected</button>
-	<button class="btn btn-danger clear" ng-click="confirmClear()">Clear Canvas</button>
-	</span>
-</p>
+
 
 </div>
 
@@ -109,50 +104,7 @@ Number of Paths:
 
 </p>
 <p>
-<script>
-function fileSelect(e) {
-e = e || window.event;
-
-var files = this.files;
-
-for(var i = 0, f; f = files[i]; i++) {
-var reader = new FileReader();
-reader.onload = (function(file) {
-return function(e) {
-	fabric.loadSVGFromString(this.result, function(objects, options) {
-	  var obj = fabric.util.groupSVGElements(objects, options);
-	  canvas.add(obj).centerObject(obj).renderAll();
-	  obj.setCoords();
-	});
-};
-})(f);
-reader.readAsText(f);
-}
-}
-document.getElementById('addsvg').addEventListener('change', fileSelect, false);
-</script>
 </p>
-
-</div>
-
-<div style="margin-top:10px">
-
-</div>
-
-<div style="margin-top:10px;">
-</div>
-
-<div style="margin-top:4px;">
-</div>
-
-<div style="margin-top:10px;">
-
-</div>
-</div>
-<div style="margin-top:10px;" id="drawing-mode-wrapper">
-
-
-<div id="drawing-mode-options" ng-show="getFreeDrawingMode()">
 
 </div>
 </div>
@@ -185,49 +137,83 @@ Save
 </button>
 </div>    
 
-<div class="tab-pane" id="gcode-inout">
+<div class="tab-pane active" id="gcode-inout">
+<p style="position:relative;top:-5px;margin:0 0;height:42px;">
+<button class="file btn btn-success"><input id='addsvg' type="file" >Import SVG File</input></button>
+<span style="position:relative;top:-30px;left:190px;display:block;">
+	 <button class="btn btn-info" id="remove-selected" ng-click="removeSelected()">Remove Selected</button>
+	<button class="btn btn-danger clear" ng-click="confirmClear()">Clear Canvas</button>
+	</span>
+</p>
 <textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
-<select id="serialport" style="width:98px;margin-top:10px;"></select>
-<button id="connectBt" class="btn btn-success"  onClick="onConnect();">Connect</button>
-<select id="speed" style="width:60px;margin-top:10px;" ng-model="speedSelected" ng-change="speedChanged()">
-	<option value="50">50</option>
-	<option value="100">100</option>
-	<option value="200">200</option>
-	<option value="400">400</option>
-	<option value="500" selected="selected">500</option>
-	<option value="800">800</option>
-	<option value="1500">1500</option>
-</select>
+<p style="position:relative;top:-5px;left:0px;">
+<button id="connectBt" class="btn btn-success"  onClick="onConnect();">Connect</button>&nbsp;&nbsp;
+<select id="serialport" style="width:180px;margin-top:10px;height:30px;"></select>&nbsp;&nbsp;
+<select id="speed" style="width:76px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
+	<option value="50">F50</option>
+	<option value="100">F100</option>
+	<option value="200">F200</option>
+	<option value="400">F400</option>
+	<option value="500" selected="selected">F500</option>
+	<option value="800">F800</option>
+	<option value="1500">F1500</option>
+</select>&nbsp;&nbsp;
 <button type="button" class="btn btn-info" ng-click="refreshGCode()">
 Refresh
 </button>
-<button type="button" class="btn btn-info" ng-click="previewArea()">
-Zone 
-</button>
-<button type="button" class="btn btn-success" ng-click="printGCode()">
-Start
-</button>
-<p style="margin-top:5px;">
-<button type="button" class="btn btn-info" ng-click="moveLeft()">
-X+
-</button>
-<button type="button" class="btn btn-info" ng-click="moveRight()">
-X-
-</button>
-<button type="button" class="btn btn-info" ng-click="moveUp()">
+</p>
+
+<script>
+function fileSelect(e) {
+e = e || window.event;
+
+var files = this.files;
+
+for(var i = 0, f; f = files[i]; i++) {
+var reader = new FileReader();
+reader.onload = (function(file) {
+return function(e) {
+	fabric.loadSVGFromString(this.result, function(objects, options) {
+	  var obj = fabric.util.groupSVGElements(objects, options);
+	  canvas.add(obj).centerObject(obj).renderAll();
+	  obj.setCoords();
+	});
+};
+})(f);
+reader.readAsText(f);
+}
+}
+document.getElementById('addsvg').addEventListener('change', fileSelect, false);
+</script>
+<div style="position:relative;top:-10px;left:0px;">
+<button type="button" class="btn" style="position:relative;top:0px;left:80px;width:65px;height:65px;" ng-click="moveUp()">
 Y+
 </button>
-<button type="button" class="btn btn-info" ng-click="moveDown()">
+<button type="button" class="btn" style="position:relative;top:80px;left:-70px;width:65px;height:65px;" ng-click="moveRight()">
+X-
+</button>
+<button type="button" class="btn btn-info" style="position:relative;top:80px;left:-57px;width:65px;height:65px;" ng-click="goZero()">
+Home
+</button>
+<button type="button" class="btn " style="position:relative;top:80px;left:-45px;width:65px;height:65px;" ng-click="moveLeft()">
+X+
+</button>
+<button type="button" class="btn"  style="position:relative;top:160px;left:-195px;width:65px;height:65px;" ng-click="moveDown()">
 Y-
 </button>
-<button type="button" class="btn btn-info" ng-click="goZero()">
-Go Home
-</button>
-<button type="button" class="btn btn-info" ng-click="setZero()">
+<button type="button" class="btn btn-info"  style="position:relative;top:160px;left:-344px;width:65px;height:65px;" ng-click="setZero()">
 Set Home
 </button>
-<button type="button" id="switchLaser" class="btn btn-warning" ng-click="switchLaser()">
+<button type="button" class="btn btn-success"  style="position:relative;top:160px;left:-136px;width:165px;height:65px;" ng-click="printGCode()">
+Start
+</button>
+</div>
+<p style="position:relative;top:85px;left:140px;">
+<button type="button" id="switchLaser"style="position:relative;top:0px;left:20px;width:100px;height:30px;" class="btn btn-warning" ng-click="switchLaser()">
 Laser On
+</button>
+<button type="button" class="btn btn-info"style="position:relative;top:35px;left:-84px;width:100px;height:30px;" ng-click="previewArea()">
+Preview 
 </button>
 </p>
 </div> 

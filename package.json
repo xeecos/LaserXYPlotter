@@ -7,7 +7,7 @@
     "icon": "assets/icon.png",
     "frame": true,
     "transparent": false,
-    "width": 1100,
+    "width": 1080,
     "height": 665,
     "resizable": false
   },
