@@ -26,6 +26,8 @@
 <script src="js/utils.js"></script>
 <script src="js/app_config.js"></script>
 <script src="js/controller.js"></script>
+<script src="js/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="js/dmuploader.min.js"></script>
 </head>
 <body>
 
@@ -41,6 +43,7 @@
 
 <canvas id="canvas" width="585" height="608" ></canvas>
 <canvas id="ruler" class='ruler' width="602" height="625" style="z-index: -1;"></canvas>
+
 
 <div id="complexity">
 Number of Paths:
@@ -96,6 +99,9 @@ Number of Paths:
 	<button class="btn btn-danger clear" ng-click="confirmClear()">Clear Canvas</button>
 	</span>
 </p>
+
+<div id="debug">xxx</div>
+<div id="fileList">xxx</div>
 </div>
 
 <div class="object-controls" object-buttons-enabled="getSelected()">
@@ -351,7 +357,38 @@ document.onmousedown = function(event)
      return false;    
    }
 }
-</script>
-
+      
+      //-- Some functions to work with our UI
+      function add_log(message)
+      {
+        console.log(message);
+      }
+      
+      function add_file(file)
+      {
+        var reader = new FileReader();
+		reader.onload = (function(f) {
+			return function(e) {
+				fabric.loadSVGFromString(this.result, function(objects, options) {
+				  var obj = fabric.util.groupSVGElements(objects, options);
+				  canvas.add(obj).centerObject(obj).renderAll();
+				  obj.setCoords();
+				});
+				};
+		})(file);
+		
+		reader.readAsText(file);
+      }
+      
+      // Upload Plugin itself
+      $('body').dmUploader({
+        url: '#',
+        dataType: 'json',
+        allowedTypes: 'image/*',
+        onNewFile: function(id, file){
+          add_file(file);
+        }
+      });
+    </script>
 </body>
 </html>
