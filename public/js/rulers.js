@@ -80,12 +80,12 @@ var Ruler;
 		function constructSVGData(color, units, major) {
 			var majorHeight = parseInt(GUTTER_SIZE * MAJOR_INTERVAL_RATIO, 10),
 				minorHeight = parseInt(GUTTER_SIZE * MINOR_INTERVAL_RATIO, 10),
-				tickWidth = parseInt(major / 10, 10),
+				tickWidth = parseInt(major / 5, 10),
 				html = "",
 				i;
-
+			var px = -5;
 			for (i = 0; i < TICKS_PER_MAJOR_INTERVAL; i += 1) {
-				html += "<div xmlns='http://www.w3.org/1999/xhtml' style='position: absolute; bottom: 0px; width: " + tickWidth + "px; border-bottom: 1px solid #555; border-left: 1px solid #999;  height: " + ((i % 5 === 1) ? majorHeight : minorHeight)  + "px; left: "  + i * tickWidth + "px'></div>";
+				html += "<div xmlns='http://www.w3.org/1999/xhtml' style='position: absolute; bottom: 0px; width: " + tickWidth + "px; border-bottom: 1px solid #555; border-left: 1px solid #999;  height: " + ((i % 10 == 1) ? majorHeight : minorHeight)  + "px; left: "  + (i * tickWidth+px) + "px'></div>";
 			}
 
 			// https://developer.mozilla.org/en-US/docs/HTML/Canvas/Drawing_DOM_objects_into_a_canvas

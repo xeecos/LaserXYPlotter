@@ -75,7 +75,7 @@ Number of Paths:
 <!--<li><a href="#load-svg-pane" data-toggle="tab">Load SVG</a></li>
 <!--<li><a href="#execute-code" data-toggle="tab">Execute</a></li>
 <!--<li><a href="#json-inout" data-toggle="tab">JSON</a></li>-->
-<li class="active" ><a href="#gcode-inout" data-toggle="tab">GCode</a></li>
+<li class="active" ><a href="#gcode-inout" data-toggle="tab">Control</a></li>
 </ul>
 
 <div class="tab-content">
@@ -148,7 +148,7 @@ Save
 <textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
 <p style="position:relative;top:-5px;left:0px;">
 <button id="connectBt" class="btn btn-success"  onClick="onConnect();">Connect</button>&nbsp;&nbsp;
-<select id="serialport" style="width:180px;margin-top:10px;height:30px;"></select>&nbsp;&nbsp;
+<select id="serialport" style="width:214px;margin-top:10px;height:30px;"></select>&nbsp;&nbsp;
 <select id="speed" style="width:76px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
 	<option value="50">F50</option>
 	<option value="100">F100</option>
@@ -158,8 +158,8 @@ Save
 	<option value="800">F800</option>
 	<option value="1500">F1500</option>
 </select>&nbsp;&nbsp;
-<button type="button" class="btn btn-info" ng-click="refreshGCode()">
-Refresh
+<button type="button" class="btn" style="width:40px;" ng-click="refreshGCode()">
+<img src="assets/refresh.png" width="15px" height="15px"/>
 </button>
 </p>
 
@@ -185,7 +185,7 @@ reader.readAsText(f);
 }
 document.getElementById('addsvg').addEventListener('change', fileSelect, false);
 </script>
-<div style="position:relative;top:-10px;left:0px;">
+<div style="position:relative;top:-10px;left:10px;">
 <button type="button" class="btn" style="position:relative;top:0px;left:80px;width:65px;height:65px;" ng-click="moveUp()">
 Y+
 </button>
@@ -201,19 +201,19 @@ X+
 <button type="button" class="btn"  style="position:relative;top:160px;left:-195px;width:65px;height:65px;" ng-click="moveDown()">
 Y-
 </button>
-<button type="button" class="btn btn-info"  style="position:relative;top:160px;left:-344px;width:65px;height:65px;" ng-click="setZero()">
+</div>
+<p style="position:relative;top:-62px;left:277px;">
+<button type="button" class="btn"  style="position:relative;top:-12px;left:0px;width:165px;height:40px;" ng-click="setZero()">
 Set Home
 </button>
-<button type="button" class="btn btn-success"  style="position:relative;top:160px;left:-136px;width:165px;height:65px;" ng-click="printGCode()">
-Start
-</button>
-</div>
-<p style="position:relative;top:85px;left:140px;">
-<button type="button" id="switchLaser"style="position:relative;top:0px;left:20px;width:100px;height:30px;" class="btn btn-warning" ng-click="switchLaser()">
+<button type="button" id="switchLaser" style="position:relative;top:50px;left:-168px;width:165px;height:40px;" class="btn btn-warning" ng-click="switchLaser()">
 Laser On
 </button>
-<button type="button" class="btn btn-info"style="position:relative;top:35px;left:-84px;width:100px;height:30px;" ng-click="previewArea()">
+<button type="button" class="btn btn-info" style="position:relative;top:110px;left:-338px;width:165px;height:40px;" ng-click="previewArea()">
 Preview 
+</button>
+<button type="button" class="btn btn-success"  style="position:relative;top:170px;left:-508px;width:165px;height:40px;" ng-click="printGCode()">
+Start
 </button>
 </p>
 </div> 
@@ -364,7 +364,7 @@ document.onmousedown = function(event)
       }
       
       // Upload Plugin itself
-      $('body').dmUploader({
+      $('canvas').dmUploader({
         url: '#',
         dataType: 'json',
         allowedTypes: 'image/*',

@@ -556,11 +556,7 @@ function addAccessors($scope) {
   };
   $scope.getConsoleGCode = function() {
 	  consoleGCodeValue = canvas.toSVG();
-    var speed = $("#speed option:selected" ).val();
-	  consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-          scale : 0.1,
-	        feedRate:speed
-        })
+	  self.updateGCode();
     return consoleGCodeValue;
   };
   $scope.setConsoleGCode = function(value) {
@@ -621,13 +617,15 @@ function addAccessors($scope) {
   }   
   $scope.refreshGCode = function() {
     consoleGCodeValue = canvas.toSVG();
+	  self.updateGCode();
+  };
+$scope.updateGCode = function(){
     var speed = $("#speed option:selected" ).val();
-	  consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-          scale : 0.1,
+  consoleGCodeValue = svg2gcode(consoleGCodeValue, {
+          scale : 0.5,
 	        feedRate:speed
         })
-  };
-
+}
 var _gcodes = [];
 $scope.sendNext = function(){
   if(_gcodes.length>0){
@@ -697,9 +695,13 @@ $scope.previewArea = function() {
 			  }
 		  }
 	  }
-	  
+	  _gcodes = [];
+    _gcodes.push("G1 X"+0+" Y"+0+" F1000\n");
+    _gcodes.push("G1 X"+xMax+" Y"+0+"\n");
+    _gcodes.push("G1 X"+xMax+" Y"+yMax+"\n");
+    _gcodes.push("G1 X"+0+" Y"+yMax+"\n");
+    _gcodes.push("G1 X"+0+" Y"+0+"\n");
     this.sendGCode("G90\n");
-    this.sendGCode("G1 X"+xMax+" Y"+yMax+"\n");
   }
   var laserStatus = false;
  $scope.switchLaser = function() {
