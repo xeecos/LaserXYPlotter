@@ -11,10 +11,12 @@ DefaultGroupName=Laser Plotter
 UninstallDisplayIcon={app}\Laser Plotter.exe
 Compression=lzma2
 SolidCompression=yes
-OutputDir=userdocs:Laser Plotter  ArchitecturesAllowed=x64ArchitecturesInstallIn64BitMode=x64
+OutputDir=userdocs:LaserXYPlotter  
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
 
 [Files]
-Source: "build\LaserPlotter\win64\*"; DestDir: "{app}"; Flags:recursesubdirs
+Source: "build\Laser Plotter\win64\*"; DestDir: "{app}"; Flags:recursesubdirs
 
 [Icons]
 Name: "{userdesktop}\Laser Plotter"; Filename: "{app}\Laser Plotter.exe";WorkingDir: "{app}";
