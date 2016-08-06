@@ -9,6 +9,7 @@
     "transparent": false,
     "width": 1100,
     "height": 665,
+    "toolbar":false,
     "resizable": false
   },
   "devDependencies": {
