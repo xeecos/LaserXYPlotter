@@ -56,6 +56,6 @@ Login Raspberry Pi through SSH (make sure that Raspberry Pi and your computer ar
 ### Serial Ports
     * use /dev/ttyAMA0 on Rpi 2
     * use /dev/ttyS0 on Rpi 3
-![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/2.jpg)
+![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/1.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/4.jpg)

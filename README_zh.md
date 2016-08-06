@@ -3,6 +3,7 @@ LaserXYPlotter是一个可以部署在树莓派上的激光雕刻机控制程序
 
 这里查看 [演示视频](http://v.youku.com/v_show/id_XMTU1MDgyMjg4OA==.html).
 
+![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/1.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/xy.gif)
 
@@ -56,6 +57,5 @@ MegaPi使用Marlin固件。
 ### 串口
     * 树莓派2B使用/dev/ttyAMA0
     * 树莓派3使用/dev/ttyS0
-![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/2.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/6.jpg)
 ![image](https://github.com/xeecos/LaserXYPlotter/raw/master/images/4.jpg)

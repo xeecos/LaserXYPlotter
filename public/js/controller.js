@@ -957,7 +957,7 @@ kitchensink.controller('CanvasControls', function($scope) {
   $scope.refreshSerialPort();
 });
 $(document).keyup(function (event) {
-  if(event.keyCode==8){
+  if(event.keyCode==8||event.keyCode==46){
     self.removeSelected();
   }
 });
