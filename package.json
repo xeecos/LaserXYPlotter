@@ -2,7 +2,7 @@
   "name": "LaserPlotter",
   "main": "public/index.html",
   "background": "index.js",
-  "version":"1.0.0",
+  "version":"1.0.1",
   "window": {
     "icon": "assets/icon.png",
     "frame": true,
