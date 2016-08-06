@@ -77,244 +77,204 @@ Number of Paths:
 <!--<li><a href="#json-inout" data-toggle="tab">JSON</a></li>-->
 <li class="active" ><a href="#gcode-inout" data-toggle="tab">Control</a></li>
 </ul>
-
 <div class="tab-content">
+	<div class="tab-pane" id="svg-shapes">
+	</div>
+	<div class="tab-pane" id="simple-shapes">
+	</div>
+	<div class="tab-pane" id="object-controls-pane">
+		<div id="global-controls">
+		</div>
+		<div class="object-controls" object-buttons-enabled="getSelected()">
+		</div>
+	</div>
+	<div class="tab-pane" id="load-svg-pane">
+		<textarea id="svg-console" bind-value-to="consoleSVG">
+		</textarea>
+		<button type="button" class="btn btn-info" ng-click="loadSVG()">
+		Load
+		</button>
+		<button type="button" class="btn" ng-click="loadSVGWithoutGrouping()">
+		Load without grouping
+		</button>
+	</div>
+	<div class="tab-pane" id="execute-code">
+		<textarea id="canvas-console" bind-value-to="console">
+		</textarea>
+		<button type="button" class="btn btn-info" ng-click="execute()">Execute</button>
+	</div>
+	<div class="tab-pane" id="json-inout">
+		<textarea id="json-console" bind-value-to="consoleJSON"></textarea>
+		<button type="button" class="btn btn-info" ng-click="loadJSON()">
+		Load
+		</button>
+		<button type="button" class="btn btn-info" ng-click="saveJSON()">
+		Save
+		</button>
+	</div>    
+	<div class="tab-pane active" id="gcode-inout">
+		<p style="position:relative;top:-5px;margin:0 0;height:42px;">
+			<button class="file btn btn-success"><input id='addsvg' type="file" >Import SVG File</input></button>
+			
+		</p>
+		<textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
+		<p style="position:relative;top:-5px;left:0px;">
+			<button id="connectBt" class="btn btn-success" style="width:100px;" onClick="onConnect();">Connect</button>&nbsp;&nbsp;
+			<select id="serialport" style="width:208px;margin-top:10px;height:30px;"></select>&nbsp;&nbsp;
+			<select id="speed" style="width:60px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
+				<option value="50">F50</option>
+				<option value="100">F100</option>
+				<option value="200">F200</option>
+				<option value="400">F400</option>
+				<option value="500" selected="selected">F500</option>
+				<option value="800">F800</option>
+				<option value="1500">F1500</option>
+			</select>&nbsp;&nbsp;
+			<button type="button" class="btn" style="width:40px;" ng-click="refreshGCode()">
+			<img src="assets/refresh.png" width="15px" height="15px"/>
+			</button>
+		</p>
+		<div style="position:relative;top:-10px;left:0px;">
+			<button type="button" class="btn btn-success"  style="position:absolute;top:75px;left:0px;width:100px;height:65px;" ng-click="printGCode()">
+			Start
+			</button>
+			<button type="button" class="btn" style="position:absolute;top:0px;left:110px;width:100px;height:65px;" ng-click="moveUp()">
+			Y+
+			</button>
+			<button type="button" class="btn" style="position:absolute;top:75px;left:220px;width:100px;height:65px;" ng-click="goZero()">
+			<img src="./assets/home.png" width="25px" height="25px"/>
+			</button>
+			<button type="button" class="btn" style="position:absolute;top:0px;left:0px;width:100px;height:65px;" ng-click="moveRight()">
+			X-
+			</button>
 
-<div class="tab-pane" id="svg-shapes">
-<p>Add <strong>SVG shapes</strong> to canvas:</p>
-
-<ul class="svg-shapes">
-</ul>
-</div>
-
-<div class="tab-pane" id="simple-shapes">
-
-</div>
-
-<div class="tab-pane" id="object-controls-pane">
-<div id="global-controls">
-
-
-</div>
-
-<div class="object-controls" object-buttons-enabled="getSelected()">
-
-<div style="margin-top:10px;">
-<p>
-
-</p>
-<p>
-</p>
-
-</div>
-</div>
-</div>
-
-<div class="tab-pane" id="load-svg-pane">
-<textarea id="svg-console" bind-value-to="consoleSVG">
-</textarea>
-<button type="button" class="btn btn-info" ng-click="loadSVG()">
-Load
-</button>
-<button type="button" class="btn" ng-click="loadSVGWithoutGrouping()">
-Load without grouping
-</button>
-</div>
-
-<div class="tab-pane" id="execute-code">
-<textarea id="canvas-console" bind-value-to="console">
-</textarea>
-<button type="button" class="btn btn-info" ng-click="execute()">Execute</button>
-</div>
-
-<div class="tab-pane" id="json-inout">
-<textarea id="json-console" bind-value-to="consoleJSON"></textarea>
-<button type="button" class="btn btn-info" ng-click="loadJSON()">
-Load
-</button>
-<button type="button" class="btn btn-info" ng-click="saveJSON()">
-Save
-</button>
-</div>    
-
-<div class="tab-pane active" id="gcode-inout">
-<p style="position:relative;top:-5px;margin:0 0;height:42px;">
-<button class="file btn btn-success"><input id='addsvg' type="file" >Import SVG File</input></button>
-<span style="position:relative;top:-30px;left:190px;display:block;">
-	 <button class="btn btn-info" id="remove-selected" ng-click="removeSelected()">Remove Selected</button>
-	<button class="btn btn-danger clear" ng-click="confirmClear()">Clear Canvas</button>
-	</span>
-</p>
-<textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
-<p style="position:relative;top:-5px;left:0px;">
-<button id="connectBt" class="btn btn-success"  onClick="onConnect();">Connect</button>&nbsp;&nbsp;
-<select id="serialport" style="width:214px;margin-top:10px;height:30px;"></select>&nbsp;&nbsp;
-<select id="speed" style="width:76px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
-	<option value="50">F50</option>
-	<option value="100">F100</option>
-	<option value="200">F200</option>
-	<option value="400">F400</option>
-	<option value="500" selected="selected">F500</option>
-	<option value="800">F800</option>
-	<option value="1500">F1500</option>
-</select>&nbsp;&nbsp;
-<button type="button" class="btn" style="width:40px;" ng-click="refreshGCode()">
-<img src="assets/refresh.png" width="15px" height="15px"/>
-</button>
-</p>
-
-<script>
-function fileSelect(e) {
-e = e || window.event;
-
-var files = this.files;
-
-for(var i = 0, f; f = files[i]; i++) {
-var reader = new FileReader();
-reader.onload = (function(file) {
-return function(e) {
-	fabric.loadSVGFromString(this.result, function(objects, options) {
-	  var obj = fabric.util.groupSVGElements(objects, options);
-	  canvas.add(obj).centerObject(obj).renderAll();
-	  obj.setCoords();
-	});
-};
-})(f);
-reader.readAsText(f);
-}
-}
-document.getElementById('addsvg').addEventListener('change', fileSelect, false);
-</script>
-<div style="position:relative;top:-10px;left:10px;">
-<button type="button" class="btn" style="position:relative;top:0px;left:80px;width:65px;height:65px;" ng-click="moveUp()">
-Y+
-</button>
-<button type="button" class="btn" style="position:relative;top:80px;left:-70px;width:65px;height:65px;" ng-click="moveRight()">
-X-
-</button>
-<button type="button" class="btn btn-info" style="position:relative;top:80px;left:-57px;width:65px;height:65px;" ng-click="goZero()">
-Home
-</button>
-<button type="button" class="btn " style="position:relative;top:80px;left:-45px;width:65px;height:65px;" ng-click="moveLeft()">
-X+
-</button>
-<button type="button" class="btn"  style="position:relative;top:160px;left:-195px;width:65px;height:65px;" ng-click="moveDown()">
-Y-
-</button>
-</div>
-<p style="position:relative;top:-62px;left:277px;">
-<button type="button" class="btn"  style="position:relative;top:-12px;left:0px;width:165px;height:40px;" ng-click="setZero()">
-Set Home
-</button>
-<button type="button" id="switchLaser" style="position:relative;top:50px;left:-168px;width:165px;height:40px;" class="btn btn-warning" ng-click="switchLaser()">
-Laser On
-</button>
-<button type="button" class="btn btn-info" style="position:relative;top:110px;left:-338px;width:165px;height:40px;" ng-click="previewArea()">
-Preview 
-</button>
-<button type="button" class="btn btn-success"  style="position:relative;top:170px;left:-508px;width:165px;height:40px;" ng-click="printGCode()">
-Start
-</button>
-</p>
+			<button type="button" class="btn"  style="position:absolute;top:75px;left:110px;width:100px;height:65px;" ng-click="moveDown()">
+			Y-
+			</button>
+			<button type="button" class="btn " style="position:absolute;top:0px;left:220px;width:100px;height:65px;" ng-click="moveLeft()">
+			X+
+			</button>
+			<button type="button" class="btn btn-warning"  style="position:absolute;top:100px;left:330px;width:112px;height:40px;" ng-click="setZero()">
+			Set Home
+			</button>
+			<button type="button" class="btn" id="switchLaser" style="position:absolute;top:50px;left:330px;width:112px;height:40px;" ng-click="switchLaser()">
+			Laser On
+			</button>
+			<button type="button" class="btn" style="position:absolute;top:0px;left:330px;width:112px;height:40px;" ng-click="previewArea()">
+			Preview 
+			</button>
+		</div>
 </div> 
 </div>
 
 </div>
-
 <script>
-var kitchensink = { };
-var canvas = new fabric.Canvas('canvas');
+	function fileSelect(e) {
+		e = e || window.event;
 
+		var files = this.files;
 
-</script>
+		for(var i = 0, f; f = files[i]; i++) {
+		var reader = new FileReader();
+		reader.onload = (function(file) {
+		return function(e) {
+			fabric.loadSVGFromString(this.result, function(objects, options) {
+			var obj = fabric.util.groupSVGElements(objects, options);
+			canvas.add(obj).centerObject(obj).renderAll();
+			obj.setCoords();
+			});
+		};
+		})(f);
+		reader.readAsText(f);
+		$("#addsvg").val("");
+		}
+	}
+	document.getElementById('addsvg').addEventListener('change', fileSelect, false);
+	var kitchensink = { };
+	var canvas = new fabric.Canvas('canvas');
+	(function() {
 
+	if (document.location.hash !== '#zoom') return;
 
-<script>
+	function renderVieportBorders() {
+	var ctx = canvas.getContext();
 
-(function() {
+	ctx.save();
 
-if (document.location.hash !== '#zoom') return;
+	ctx.fillStyle = 'rgba(0,0,0,0.1)';
 
-function renderVieportBorders() {
-var ctx = canvas.getContext();
+	ctx.fillRect(
+	canvas.viewportTransform[4],
+	canvas.viewportTransform[5],
+	canvas.getWidth() * canvas.getZoom(),
+	canvas.getHeight() * canvas.getZoom());
 
-ctx.save();
+	ctx.setLineDash([5, 5]);
 
-ctx.fillStyle = 'rgba(0,0,0,0.1)';
+	ctx.strokeRect(
+	canvas.viewportTransform[4],
+	canvas.viewportTransform[5],
+	canvas.getWidth() * canvas.getZoom(),
+	canvas.getHeight() * canvas.getZoom());
 
-ctx.fillRect(
-canvas.viewportTransform[4],
-canvas.viewportTransform[5],
-canvas.getWidth() * canvas.getZoom(),
-canvas.getHeight() * canvas.getZoom());
+	ctx.restore();
+	}
 
-ctx.setLineDash([5, 5]);
+	$(canvas.getElement().parentNode).on('mousewheel', function(e) {
 
-ctx.strokeRect(
-canvas.viewportTransform[4],
-canvas.viewportTransform[5],
-canvas.getWidth() * canvas.getZoom(),
-canvas.getHeight() * canvas.getZoom());
+	var newZoom = canvas.getZoom() + e.deltaY / 300;
+	canvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, newZoom);
 
-ctx.restore();
-}
+	renderVieportBorders();
 
-$(canvas.getElement().parentNode).on('mousewheel', function(e) {
+	return false;
+	});
 
-var newZoom = canvas.getZoom() + e.deltaY / 300;
-canvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, newZoom);
+	var viewportLeft = 0,
+	viewportTop = 0,
+	mouseLeft,
+	mouseTop,
+	_drawSelection = canvas._drawSelection,
+	isDown = false;
 
-renderVieportBorders();
+	canvas.on('mouse:down', function(options) {
+	isDown = true;
 
-return false;
-});
+	viewportLeft = canvas.viewportTransform[4];
+	viewportTop = canvas.viewportTransform[5];
 
-var viewportLeft = 0,
-viewportTop = 0,
-mouseLeft,
-mouseTop,
-_drawSelection = canvas._drawSelection,
-isDown = false;
+	mouseLeft = options.e.x;
+	mouseTop = options.e.y;
 
-canvas.on('mouse:down', function(options) {
-isDown = true;
+	if (options.e.altKey) {
+	_drawSelection = canvas._drawSelection;
+	canvas._drawSelection = function(){ };
+	}
 
-viewportLeft = canvas.viewportTransform[4];
-viewportTop = canvas.viewportTransform[5];
+	renderVieportBorders();
+	});
 
-mouseLeft = options.e.x;
-mouseTop = options.e.y;
+	canvas.on('mouse:move', function(options) {
+	if (options.e.altKey && isDown) {
+	var currentMouseLeft = options.e.x;
+	var currentMouseTop = options.e.y;
 
-if (options.e.altKey) {
-_drawSelection = canvas._drawSelection;
-canvas._drawSelection = function(){ };
-}
+	var deltaLeft = currentMouseLeft - mouseLeft,
+	deltaTop = currentMouseTop - mouseTop;
 
-renderVieportBorders();
-});
+	canvas.viewportTransform[4] = viewportLeft + deltaLeft;
+	canvas.viewportTransform[5] = viewportTop + deltaTop;
 
-canvas.on('mouse:move', function(options) {
-if (options.e.altKey && isDown) {
-var currentMouseLeft = options.e.x;
-var currentMouseTop = options.e.y;
+	canvas.renderAll();
+	renderVieportBorders();
+	}
+	});
 
-var deltaLeft = currentMouseLeft - mouseLeft,
-deltaTop = currentMouseTop - mouseTop;
-
-canvas.viewportTransform[4] = viewportLeft + deltaLeft;
-canvas.viewportTransform[5] = viewportTop + deltaTop;
-
-canvas.renderAll();
-renderVieportBorders();
-}
-});
-
-canvas.on('mouse:up', function() {
-canvas._drawSelection = _drawSelection;
-isDown = false;
-});
-})();
-
+	canvas.on('mouse:up', function() {
+	canvas._drawSelection = _drawSelection;
+	isDown = false;
+	});
+	})();
 </script>
 
 </div>

@@ -696,7 +696,7 @@ $scope.previewArea = function() {
 		  }
 	  }
 	  _gcodes = [];
-    _gcodes.push("G1 X"+0+" Y"+0+" F1000\n");
+    _gcodes.push("G1 X"+0+" Y"+0+" F4000\n");
     _gcodes.push("G1 X"+xMax+" Y"+0+"\n");
     _gcodes.push("G1 X"+xMax+" Y"+yMax+"\n");
     _gcodes.push("G1 X"+0+" Y"+yMax+"\n");
@@ -955,6 +955,11 @@ kitchensink.controller('CanvasControls', function($scope) {
   watchCanvas($scope);
 
   $scope.refreshSerialPort();
+});
+$(document).keyup(function (event) {
+  if(event.keyCode==8){
+    self.removeSelected();
+  }
 });
 var connectId = -1;
 function onConnect(){
