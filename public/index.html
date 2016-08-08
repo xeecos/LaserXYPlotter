@@ -14,6 +14,8 @@
 <script type="text/javascript" src="js/ruler.js"></script>
 <script src="lib/prism.js"></script>
 <script src="lib/svg2gcode.js"></script>
+<script src="lib/positional-format.min.js"></script>
+<script src="lib/dxf2svg.js"></script>
 <script src="lib/SVGReader.js"></script>
 <script src="lib/vec2.js"></script>
 <script src="lib/fabric.js"></script>
@@ -114,7 +116,7 @@ Number of Paths:
 	</div>    
 	<div class="tab-pane active" id="gcode-inout">
 		<p style="position:relative;top:-5px;margin:0 0;height:42px;">
-			<button class="file btn btn-info"><input id='addsvg' type="file" >Import SVG File</input></button>
+			<button class="file btn btn-info"><input id='addsvg' type="file" >Import SVG/DXF File</input></button>
 			
 		</p>
 		<textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
@@ -178,7 +180,8 @@ Number of Paths:
 		var reader = new FileReader();
 		reader.onload = (function(file) {
 		return function(e) {
-			fabric.loadSVGFromString(this.result, function(objects, options) {
+			var svg = dxfToSvg(this.result);
+			fabric.loadSVGFromString(svg, function(objects, options) {
 			var obj = fabric.util.groupSVGElements(objects, options);
 			canvas.add(obj).centerObject(obj).renderAll();
 			obj.setCoords();
@@ -313,7 +316,8 @@ document.onmousedown = function(event)
         var reader = new FileReader();
 		reader.onload = (function(f) {
 			return function(e) {
-				fabric.loadSVGFromString(this.result, function(objects, options) {
+				var svg = dxfToSvg(this.result);
+				fabric.loadSVGFromString(svg, function(objects, options) {
 				  var obj = fabric.util.groupSVGElements(objects, options);
 				  canvas.add(obj).centerObject(obj).renderAll();
 				  obj.setCoords();

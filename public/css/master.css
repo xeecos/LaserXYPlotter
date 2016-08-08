@@ -3,7 +3,7 @@ body {
 	color:#a0a0a0;
 	overflow: hidden;
 	background-color: #333;
-  font-family: "Open Sans", sans-serif !important; margin: 0; font-size: 14px !important; line-height: 1.5 !important; 
+    font-family: "Open Sans", sans-serif !important; margin: 0; font-size: 14px !important; line-height: 1.5 !important; 
  }
 
 a:hover, a:focus { text-decoration: none; }
