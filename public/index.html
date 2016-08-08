@@ -330,8 +330,6 @@ document.onmousedown = function(event)
       // Upload Plugin itself
       $('canvas').dmUploader({
         url: '#',
-        dataType: 'json',
-        allowedTypes: 'image/*',
         onNewFile: function(id, file){
           add_file(file);
         }
