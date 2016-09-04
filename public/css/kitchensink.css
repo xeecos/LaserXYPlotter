@@ -40,6 +40,6 @@ input[type=radio] { margin-top: -3px; }
 #text-cmd-italic { font-style: italic; }
 #text-cmd-shadow { text-shadow: rgb(100,100,100) 1px 1px 3px; }
 
-#svg-console, #canvas-console, #json-console, #gcode-console { width: 440px; height: 314px; resize:none; display: block; }
+#svg-console, #canvas-console, #json-console, #gcode-console { width: 440px; height: 274px; resize:none; display: block; }
 
 #canvas-background { display: inline-block; position: absolute; top: 0; right: 0; }

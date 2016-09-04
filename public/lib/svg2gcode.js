@@ -11,10 +11,12 @@ function svg2gcode(svg, settings) {
   settings.feedRate = settings.feedRate || 1400;
   settings.seekRate = settings.seekRate || 1100;
   settings.bitWidth = settings.bitWidth || 1; // in mm
-
+  settings.mode = settings.mode || "gcode";
+  settings.position = settings.position || {x:0,y:0};
+  settings.power = settings.power || 512;
   var
   scale=function(val) {
-    return Math.floor(val * settings.scale*100)/100;
+    return Math.floor(val * settings.scale);
   },
   paths = SVGReader.parse(svg, {}).allcolors,
   gcode,
@@ -53,22 +55,46 @@ function svg2gcode(svg, settings) {
     // sort by area
     return (a.bounds.area < b.bounds.area) ? -1 : 1;
   });
-
-  gcode = [
-    'G90'
-  ];
-
+  if(settings.mode=="axidraw"){
+    gcode = [];
+  }else{
+    gcode = [
+      'G90'
+    ];
+  }
+  function getLength(x,y){
+    return Math.sqrt(x*x+y*y);
+  }
+  function getPulses(loc){
+    return Math.floor(loc*10*settings.seekRate);
+  }
+  function getPulsesDist(loc){
+    return Math.floor(loc*10*settings.seekRate)/10;
+  }
+  var prevPosition = {x:settings.position.x,y:settings.position.y};
   for (var pathIdx = 0, pathLength = paths.length; pathIdx < pathLength; pathIdx++) {
     path = paths[pathIdx];
 
     // seek to index 0
-    gcode.push(['G1',
-      'X' + scale(path[0].x),
-      'Y' + scale(path[0].y),
-      'F' + settings.seekRate
-    ].join(' '));
-	
-	gcode.push('M3 P200');
+    if(settings.mode=="axidraw"){
+        gcode.push(['xm',
+          Math.max(10,Math.floor(getLength(path[0].x-prevPosition.x,path[0].y-prevPosition.y)*settings.seekRate)),
+          getPulses(getPulsesDist(path[0].x))-getPulses(prevPosition.x),
+          getPulses(getPulsesDist(path[0].y))-getPulses(prevPosition.y)
+        ].join(','));
+
+        gcode.push('sp,0');
+	      gcode.push('se,1,'+settings.power);
+        prevPosition.x = getPulsesDist(path[0].x);
+        prevPosition.y = getPulsesDist(path[0].y);
+    }else{
+      gcode.push(['G1',
+        'X' + scale(path[0].x),
+        'Y' + scale(path[0].y),
+        'F' + settings.seekRate
+      ].join(' '));
+      gcode.push('M3 P200');
+    }
     for (var p = settings.passWidth; p<=settings.materialWidth; p+=settings.passWidth) {
 
       // begin the cut by dropping the tool to the work
@@ -82,12 +108,29 @@ function svg2gcode(svg, settings) {
       for (var segmentIdx=0, segmentLength = path.length; segmentIdx<segmentLength; segmentIdx++) {
         var segment = path[segmentIdx];
 
-        var localSegment = ['G1',
-          'X' + scale(segment.x),
-          'Y' + scale(segment.y),
-          'F' + settings.feedRate
-        ].join(' ');
-
+        var localSegment;
+        
+        if(settings.mode=="axidraw"){
+          localSegment = ['xm',
+            Math.max(10,Math.floor(getLength(segment.x-prevPosition.x,segment.y-prevPosition.y)*settings.seekRate)),
+            getPulses(getPulsesDist(segment.x))-getPulses(prevPosition.x),
+            getPulses(getPulsesDist(segment.y))-getPulses(prevPosition.y)
+          ].join(',');
+        }else{
+          localSegment = ['G1',
+              'X' + scale(segment.x),
+              'Y' + scale(segment.y),
+              'F' + settings.feedRate
+            ].join(' ');
+        }
+        if(segment.x-prevPosition.x==0&&segment.y-prevPosition.y==0){
+          continue;
+        }
+        if(segment.x==0&&segment.y==0){
+          continue;
+        }
+        prevPosition.x = getPulsesDist(segment.x);
+        prevPosition.y = getPulsesDist(segment.y);
         // feed through the material
         gcode.push(localSegment);
         localPath.push(localSegment);
@@ -101,34 +144,33 @@ function svg2gcode(svg, settings) {
           p+=settings.passWidth;
           if (p<settings.materialWidth) {
             // begin the cut by dropping the tool to the work
-            gcode.push(['G1',
-              'Z' + (settings.cutZ + p),
-              'F' + '200'
-            ].join(' '));
+            // gcode.push(['G1',
+            //   'Z' + (settings.cutZ + p),
+            //   'F' + '200'
+            // ].join(' '));
 
             Array.prototype.push.apply(gcode, localPath.reverse());
           }
         }
       }
     }
-
-    // go safe
-	
-	gcode.push('M3 P0');
-    //gcode.push(['G1',
-    //  'Z' + settings.safeZ,
-    //  'F' + '300'
-    //].join(' '));
+    if(settings.mode=="axidraw"){
+	    gcode.push('sp,1');
+	    gcode.push('se,0');
+    }else{
+	    gcode.push('M3 P0');
+    }
   }
 
-  // just wait there for a second
-  //gcode.push('G4 P1');
-
-  // turn off the spindle
-  gcode.push('M3 P0');
-
-  // go home
-  gcode.push('G1 X0 Y0 F'+ settings.seekRate);
-
+  if(settings.mode=="axidraw"){
+	    gcode.push('sp,1');
+	    gcode.push('se,0');
+	    gcode.push('home');
+  }else{
+    // turn off the spindle
+    gcode.push('M3 P0');
+    // go home
+    gcode.push('G1 X0 Y0 F'+ settings.seekRate);
+  }
   return gcode.join('\n');
 }

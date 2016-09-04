@@ -622,15 +622,34 @@ function addAccessors($scope) {
 $scope.updateGCode = function(){
     var speed = $("#speed option:selected" ).val();
   consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-          scale : 0.5,
-	        feedRate:speed
+          scale : this.modeSelected=="axidraw"?10:0.5,
+          feedRate:speed,
+          seekRate:5,
+          mode:this.modeSelected,
+          power:512
         })
 }
 var _gcodes = [];
+var _position = {x:0,y:0};
+
 $scope.sendNext = function(){
   if(_gcodes.length>0){
-    this.sendGCode( _gcodes.shift()+"\n");
-
+    var cmd = _gcodes.shift();
+    if(cmd=="home"){
+      //this.goZero();
+    }else{
+      if(cmd.indexOf("xm,")>-1){
+        var p = cmd.split(",");
+        _position.x += Math.floor(p[2]/100);
+        _position.y += Math.floor(p[3]/100);
+        console.log(p[1]*1);
+        $scope.sendGCode(cmd+"\n");
+        setTimeout($scope.sendNext,p[1]);
+      }else{
+        $scope.sendGCode(cmd+"\n");
+        setTimeout($scope.sendNext,100);
+      }
+    }
   }
 }
 $scope.sendGCode = function(cmd){
@@ -651,68 +670,146 @@ $scope.convertStringToArrayBuffer=function(str) {
 $scope.resetGCode = function(){
   _gcodes = [];
 }
-$scope.printGCode = function() {
-	_gcodes = consoleGCodeValue.split("\n");
-  this.sendNext();
+  $scope.printGCode = function() {
+    var speed = $("#speed option:selected" ).val();
+    consoleGCodeValue = canvas.toSVG();
+    consoleGCodeValue = svg2gcode(consoleGCodeValue, {
+          scale : this.modeSelected=="axidraw"?10:0.5,
+          feedRate:speed,
+          seekRate:5,
+          mode:this.modeSelected,
+          power:512
+        });
+	  _gcodes = consoleGCodeValue.split("\n");
+    this.sendNext();
   };
   $scope.setZero = function() {
-    this.sendGCode("G92 X0 Y0 Z0\n");
+    if(this.modeSelected=="axidraw"){
+      _position.x = 0;
+      _position.y = 0;
+    }else{
+      this.sendGCode("G92 X0 Y0 Z0\n");
+    }
   };
-   $scope.goZero = function() {
-    this.sendGCode("G90\n");
-    this.sendGCode("G1 X0 Y0\n");
+  $scope.getLength = function(x,y){
+    return Math.sqrt(x*x+y*y);
+  }
+  $scope.moveTo = function(x,y){
+      var time = Math.floor(this.getLength(x,y)*20);
+      this.sendGCode("xm,"+time+","+(x*100)+","+(y*100)+"\n");
+      _position.x += x;
+      _position.y += y;
+  }
+  $scope.pushMove = function(x,y){
+      var time = Math.floor(Math.max(1,this.getLength(x,y)*100));
+      _gcodes.push("xm,"+time+","+(x*100)+","+(y*100)+"\n");
+  }
+  $scope.goZero = function() {
+    if(this.modeSelected=="axidraw"){
+      this.moveTo(-_position.x,-_position.y);
+    }else{
+      this.sendGCode("G90\n");
+      this.sendGCode("G1 X0 Y0\n");
+    }
   };
   $scope.moveLeft = function() {
-    this.sendGCode("G91\n");
-    this.sendGCode("G1 X5 Y0\n");
+    if(this.modeSelected=="axidraw"){
+      this.moveTo(-5,0);
+    }else{
+      this.sendGCode("G91\n");
+      this.sendGCode("G1 X5 Y0\n");
+    }
   };
   $scope.moveRight = function() {
-    this.sendGCode("G91\n");
-    this.sendGCode("G1 X-5 Y0\n");
+    if(this.modeSelected=="axidraw"){
+      this.moveTo(5,0);
+    }else{
+      this.sendGCode("G91\n");
+      this.sendGCode("G1 X-5 Y0\n");
+    }
   };
   $scope.moveUp = function() {
-	
-    this.sendGCode("G91\n");
-    this.sendGCode("G1 X0 Y5\n");
+    if(this.modeSelected=="axidraw"){
+      this.moveTo(0,-5);
+    }else{
+      this.sendGCode("G91\n");
+      this.sendGCode("G1 X0 Y5\n");
+    }
   };
   $scope.moveDown = function() {
-    this.sendGCode("G91\n");
-    this.sendGCode("G1 X0 Y-5\n");
+    if(this.modeSelected=="axidraw"){
+      this.moveTo(0,5);
+    }else{
+      this.sendGCode("G91\n");
+      this.sendGCode("G1 X0 Y-5\n");
+    }
   };
 $scope.previewArea = function() {
 	  var arr = consoleGCodeValue.split('\n');
 	  var xMax = 0;
 	  var yMax = 0;
-	  for(var i=0;i<arr.length;i++){
-		  if(arr[i].indexOf('G1 X')>-1){
-			  var xx = arr[i].split('X')[1].split(' ')[0]*1;
-			  var yy = arr[i].split('Y')[1].split(' ')[0]*1;
-			  if(xx>xMax){
-				  xMax = xx;
-			  }
-			  if(yy>yMax){
-				  yMax = yy;
-			  }
-		  }
-	  }
+    if(this.modeSelected=="axidraw"){
+      for(var i=0;i<arr.length;i++){
+        if(arr[i].indexOf('xm,')>-1){
+          var xx = arr[i].split(',')[2]*0.01;
+          var yy = arr[i].split(',')[3]*0.01;
+          if(xx>xMax){
+            xMax = xx;
+          }
+          if(yy>yMax){
+            yMax = yy;
+          }
+        }
+      }
+    }else{
+      for(var i=0;i<arr.length;i++){
+        if(arr[i].indexOf('G1 X')>-1){
+          var xx = arr[i].split('X')[1].split(' ')[0]*1;
+          var yy = arr[i].split('Y')[1].split(' ')[0]*1;
+          if(xx>xMax){
+            xMax = xx;
+          }
+          if(yy>yMax){
+            yMax = yy;
+          }
+        }
+      }
+    }
 	  _gcodes = [];
-    _gcodes.push("G1 X"+0+" Y"+0+" F4000\n");
-    _gcodes.push("G1 X"+xMax+" Y"+0+"\n");
-    _gcodes.push("G1 X"+xMax+" Y"+yMax+"\n");
-    _gcodes.push("G1 X"+0+" Y"+yMax+"\n");
-    _gcodes.push("G1 X"+0+" Y"+0+"\n");
-    this.sendGCode("G90\n");
+    if(this.modeSelected=="axidraw"){
+      this.pushMove(xMax,0);
+      this.pushMove(0,yMax);
+      this.pushMove(-xMax,0);
+      this.pushMove(0,-yMax);
+      this.sendNext();
+    }else{
+      _gcodes.push("G1 X"+0+" Y"+0+" F4000\n");
+      _gcodes.push("G1 X"+xMax+" Y"+0+"\n");
+      _gcodes.push("G1 X"+xMax+" Y"+yMax+"\n");
+      _gcodes.push("G1 X"+0+" Y"+yMax+"\n");
+      _gcodes.push("G1 X"+0+" Y"+0+"\n");
+      this.sendGCode("G90\n");
+    }
   }
   var laserStatus = false;
  $scope.switchLaser = function() {
 	laserStatus = !laserStatus;
+  if(this.modeSelected=="axidraw"){
+    this.sendGCode("se,"+(laserStatus==true?"1,20":0)+"\n");
+  }else{
     this.sendGCode("M3 P"+(laserStatus==true?3:0)+"\n");
+  }
     $("#switchLaser").html(laserStatus?"Laser Off":"Laser On");
   };
   $scope.speedChanged = function(){
     this.refreshGCode();
   }
   $scope.speedSelected = "500";
+  $scope.modeChanged = function(){
+    this.modeSelected = $("#mode option:selected").val();
+    this.refreshGCode();
+  }
+  $scope.modeSelected = "axidraw";
   var _loadJSON = function(json) {
     canvas.loadFromJSON(json, function(){
       canvas.renderAll();
@@ -743,6 +840,9 @@ $scope.previewArea = function() {
     $("#serialport").empty();
     chrome.serial.getDevices(function(ports){
     for(var i=0;i<ports.length;i++){
+      if(ports[i].path.toLowerCase().indexOf("bluetooth")>-1||ports[i].path.toLowerCase().indexOf("cu.")>-1){
+        continue;
+      }
       var op = $('<option></option>').attr('value',ports[i].path).text(ports[i].path);
       $("#serialport").append(op);
     }
@@ -984,10 +1084,18 @@ function onConnect(){
 }
 chrome.serial.onReceive.addListener(onReceiveCallback);
 
+function onSend(){
+  self.sendGCode($("#commandSend").val()+"\n");
+}
+var buffer = "";
 function onReceiveCallback(res){
   var str = String.fromCharCode.apply(null, new Uint8Array(res.data));
-  console.log(str);
-	if(str.indexOf("ok")>-1){
-    self.sendNext();
+  buffer+=str;
+	if(str.toLowerCase().indexOf("\n")>-1){
+    console.log(buffer);
+    if(buffer.toLowerCase().indexOf("ok")>-1){
+      // self.sendNext();
+      buffer = "";
+    }
   }
 };
