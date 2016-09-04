@@ -77,7 +77,7 @@ Number of Paths:
 <!--<li><a href="#load-svg-pane" data-toggle="tab">Load SVG</a></li>
 <!--<li><a href="#execute-code" data-toggle="tab">Execute</a></li>
 <!--<li><a href="#json-inout" data-toggle="tab">JSON</a></li>-->
-<li class="active" ><a href="#gcode-inout" data-toggle="tab">Control</a></li>
+<li class="active" ><a href="#gcode-inout" data-toggle="tab">控制面板</a></li>
 </ul>
 <div class="tab-content">
 	<div class="tab-pane" id="svg-shapes">
@@ -116,19 +116,19 @@ Number of Paths:
 	</div>    
 	<div class="tab-pane active" id="gcode-inout">
 		<p style="position:relative;top:-5px;margin:0 0;height:42px;">
-			<button class="file btn btn-info"><input id='addsvg' type="file" >Import SVG/DXF File</input></button>
+			<button class="file btn btn-info"><input id='addsvg' type="file" >导入 SVG/DXF 文件</input></button>
 			<select id="mode" style="width:140px;margin-top:10px;height:30px;" ng-model="modeSelected" ng-change="modeChanged()">
-				<option value="gcode">GCode Mode</option>
-				<option value="axidraw" selected="selected">Axidraw Mode</option>
+				<option value="gcode">GCode 模式</option>
+				<option value="axidraw" selected="selected">Axidraw 模式</option>
 			</select>
 		</p>
 		<textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
 		<input type="text" id="commandSend" style="width:355px;"></input>
-			<button id="sendBt" class="btn btn-success" style="width:80px;margin-top:-10px;" onClick="onSend();">Send</button>
+			<button id="sendBt" class="btn btn-success" style="width:80px;margin-top:-10px;" onClick="onSend();">发送</button>
 		<p style="position:relative;top:-5px;left:0px;">
-			<button id="connectBt" class="btn btn-success" style="width:100px;" onClick="onConnect();">Connect</button>&nbsp;&nbsp;
-			<select id="serialport" style="width:208px;margin-top:10px;height:30px;"></select>&nbsp;&nbsp;
-			<select id="speed" style="width:70px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
+			<button id="connectBt" class="btn btn-success" style="width:100px;" onClick="onConnect();">连接</button>
+			<select id="serialport" style="width:208px;margin-top:10px;height:30px;"></select>
+			<select id="speed" style="width:85px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
 				<option value="50">F50</option>
 				<option value="100">F100</option>
 				<option value="200">F200</option>
@@ -136,14 +136,14 @@ Number of Paths:
 				<option value="500" selected="selected">F500</option>
 				<option value="800">F800</option>
 				<option value="1500">F1500</option>
-			</select>&nbsp;&nbsp;
+			</select>
 			<button type="button" class="btn" style="width:40px;" ng-click="refreshGCode()">
 			<img src="assets/refresh.png" width="15px" height="15px"/>
 			</button>
 		</p>
 		<div style="position:relative;top:-10px;left:0px;">
 			<button type="button" class="btn btn-success"  style="position:absolute;top:75px;left:0px;width:100px;height:65px;" ng-click="printGCode()">
-			Start
+			开始
 			</button>
 			<button type="button" class="btn" style="position:absolute;top:0px;left:110px;width:100px;height:65px;" ng-click="moveUp()">
 			Y-
@@ -161,13 +161,13 @@ Number of Paths:
 			X+
 			</button>
 			<button type="button" class="btn btn-warning"  style="position:absolute;top:100px;left:330px;width:122px;height:40px;" ng-click="setZero()">
-			Set Home
+			设置为原点
 			</button>
 			<button type="button" class="btn" id="switchLaser" style="position:absolute;top:50px;left:330px;width:122px;height:40px;" ng-click="switchLaser()">
-			Laser On
+			激光开启/落笔
 			</button>
 			<button type="button" class="btn" style="position:absolute;top:0px;left:330px;width:122px;height:40px;" ng-click="previewArea()">
-			Preview 
+			预览 
 			</button>
 		</div>
 </div> 

@@ -63,7 +63,7 @@ function svg2gcode(svg, settings) {
     ];
   }
   function getLength(x,y){
-    return Math.sqrt(x*x+y*y);
+    return Math.sqrt(x*x+y*y)*5000/settings.feedRate;
   }
   function getPulses(loc){
     return Math.floor(loc*10*settings.seekRate);
@@ -78,15 +78,16 @@ function svg2gcode(svg, settings) {
     // seek to index 0
     if(settings.mode=="axidraw"){
         gcode.push(['xm',
-          Math.max(10,Math.floor(getLength(path[0].x-prevPosition.x,path[0].y-prevPosition.y)*settings.seekRate)),
-          getPulses(getPulsesDist(path[0].x))-getPulses(prevPosition.x),
-          getPulses(getPulsesDist(path[0].y))-getPulses(prevPosition.y)
+          Math.max(10,Math.floor(getLength(path[0].x-prevPosition.x,path[0].y-prevPosition.y))),
+          getPulses(getPulsesDist(path[0].x))-getPulses(getPulsesDist(prevPosition.x)),
+          getPulses(getPulsesDist(path[0].y))-getPulses(getPulsesDist(prevPosition.y))
         ].join(','));
-
         gcode.push('sp,0');
 	      gcode.push('se,1,'+settings.power);
-        prevPosition.x = getPulsesDist(path[0].x);
-        prevPosition.y = getPulsesDist(path[0].y);
+        gcode.push(['xm',100,0,0].join(','));
+        prevPosition.x = (path[0].x);
+        prevPosition.y = (path[0].y);
+        console.log("x:",path[0].x);
     }else{
       gcode.push(['G1',
         'X' + scale(path[0].x),
@@ -112,9 +113,9 @@ function svg2gcode(svg, settings) {
         
         if(settings.mode=="axidraw"){
           localSegment = ['xm',
-            Math.max(10,Math.floor(getLength(segment.x-prevPosition.x,segment.y-prevPosition.y)*settings.seekRate)),
-            getPulses(getPulsesDist(segment.x))-getPulses(prevPosition.x),
-            getPulses(getPulsesDist(segment.y))-getPulses(prevPosition.y)
+            Math.max(10,Math.floor(getLength(segment.x-prevPosition.x,segment.y-prevPosition.y))),
+            getPulses(getPulsesDist(segment.x))-getPulses(getPulsesDist(prevPosition.x)),
+            getPulses(getPulsesDist(segment.y))-getPulses(getPulsesDist(prevPosition.y))
           ].join(',');
         }else{
           localSegment = ['G1',
@@ -123,14 +124,15 @@ function svg2gcode(svg, settings) {
               'F' + settings.feedRate
             ].join(' ');
         }
+
         if(segment.x-prevPosition.x==0&&segment.y-prevPosition.y==0){
           continue;
         }
         if(segment.x==0&&segment.y==0){
           continue;
         }
-        prevPosition.x = getPulsesDist(segment.x);
-        prevPosition.y = getPulsesDist(segment.y);
+        prevPosition.x = (segment.x);
+        prevPosition.y = (segment.y);
         // feed through the material
         gcode.push(localSegment);
         localPath.push(localSegment);

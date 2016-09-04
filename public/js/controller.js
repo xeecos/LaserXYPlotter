@@ -622,9 +622,9 @@ function addAccessors($scope) {
 $scope.updateGCode = function(){
     var speed = $("#speed option:selected" ).val();
   consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-          scale : this.modeSelected=="axidraw"?10:0.5,
+          scale : this.modeSelected=="axidraw"?5:0.5,
           feedRate:speed,
-          seekRate:5,
+          seekRate:2.28,
           mode:this.modeSelected,
           power:512
         })
@@ -640,8 +640,8 @@ $scope.sendNext = function(){
     }else{
       if(cmd.indexOf("xm,")>-1){
         var p = cmd.split(",");
-        _position.x += Math.floor(p[2]/100);
-        _position.y += Math.floor(p[3]/100);
+        _position.x += Math.floor(p[2]);
+        _position.y += Math.floor(p[3]);
         console.log(p[1]*1);
         $scope.sendGCode(cmd+"\n");
         setTimeout($scope.sendNext,p[1]);
@@ -674,9 +674,9 @@ $scope.resetGCode = function(){
     var speed = $("#speed option:selected" ).val();
     consoleGCodeValue = canvas.toSVG();
     consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-          scale : this.modeSelected=="axidraw"?10:0.5,
+          scale : this.modeSelected=="axidraw"?5:0.5,
           feedRate:speed,
-          seekRate:5,
+          seekRate:2.28,
           mode:this.modeSelected,
           power:512
         });
@@ -695,14 +695,14 @@ $scope.resetGCode = function(){
     return Math.sqrt(x*x+y*y);
   }
   $scope.moveTo = function(x,y){
-      var time = Math.floor(this.getLength(x,y)*20);
-      this.sendGCode("xm,"+time+","+(x*100)+","+(y*100)+"\n");
+      var time = Math.floor(this.getLength(x,y)/5);
+      this.sendGCode("xm,"+time+","+(x)+","+(y)+"\n");
       _position.x += x;
       _position.y += y;
   }
   $scope.pushMove = function(x,y){
-      var time = Math.floor(Math.max(1,this.getLength(x,y)*100));
-      _gcodes.push("xm,"+time+","+(x*100)+","+(y*100)+"\n");
+      var time = Math.floor(Math.max(1,this.getLength(x,y)));
+      _gcodes.push("xm,"+time+","+Math.floor(x)+","+Math.floor(y)+"\n");
   }
   $scope.goZero = function() {
     if(this.modeSelected=="axidraw"){
@@ -714,7 +714,7 @@ $scope.resetGCode = function(){
   };
   $scope.moveLeft = function() {
     if(this.modeSelected=="axidraw"){
-      this.moveTo(-5,0);
+      this.moveTo(-500,0);
     }else{
       this.sendGCode("G91\n");
       this.sendGCode("G1 X5 Y0\n");
@@ -722,7 +722,7 @@ $scope.resetGCode = function(){
   };
   $scope.moveRight = function() {
     if(this.modeSelected=="axidraw"){
-      this.moveTo(5,0);
+      this.moveTo(500,0);
     }else{
       this.sendGCode("G91\n");
       this.sendGCode("G1 X-5 Y0\n");
@@ -730,7 +730,7 @@ $scope.resetGCode = function(){
   };
   $scope.moveUp = function() {
     if(this.modeSelected=="axidraw"){
-      this.moveTo(0,-5);
+      this.moveTo(0,-500);
     }else{
       this.sendGCode("G91\n");
       this.sendGCode("G1 X0 Y5\n");
@@ -738,7 +738,7 @@ $scope.resetGCode = function(){
   };
   $scope.moveDown = function() {
     if(this.modeSelected=="axidraw"){
-      this.moveTo(0,5);
+      this.moveTo(0,500);
     }else{
       this.sendGCode("G91\n");
       this.sendGCode("G1 X0 Y-5\n");
@@ -796,10 +796,11 @@ $scope.previewArea = function() {
 	laserStatus = !laserStatus;
   if(this.modeSelected=="axidraw"){
     this.sendGCode("se,"+(laserStatus==true?"1,20":0)+"\n");
+    this.sendGCode("sp,"+(laserStatus==true?0:1)+"\n");
   }else{
     this.sendGCode("M3 P"+(laserStatus==true?3:0)+"\n");
   }
-    $("#switchLaser").html(laserStatus?"Laser Off":"Laser On");
+    $("#switchLaser").html(laserStatus?"激光关闭/抬笔":"激光开启/落笔");
   };
   $scope.speedChanged = function(){
     this.refreshGCode();
@@ -1063,12 +1064,12 @@ $(document).keyup(function (event) {
 });
 var connectId = -1;
 function onConnect(){
-	if($("#connectBt").html()=="Disconnect"){
+	if($("#connectBt").html()=="断开连接"){
 		setTimeout(function(){
       self.resetGCode();
 			chrome.serial.disconnect(connectId,function(result){
 				connectId = -1;
-				$("#connectBt").html("Connect");
+				$("#connectBt").html("连接");
 			});
 		},1000);
 		return;
@@ -1076,7 +1077,7 @@ function onConnect(){
     var port = $("#serialport option:selected" ).val();
 	chrome.serial.connect(port, {bitrate: 115200},  function(connectionInfo) {
 		connectId = connectionInfo.connectionId;
-		$("#connectBt").html("Disconnect");
+		$("#connectBt").html("断开连接");
 		setTimeout(function(){
 
 		},1000);

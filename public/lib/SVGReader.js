@@ -504,6 +504,7 @@ SVGReader = {
       // http://www.w3.org/TR/SVG11/paths.html
       // has transform and style attributes
       var d = tag.getAttribute("d")
+      
       parser.addPath(d, node)
     },
 
@@ -560,12 +561,18 @@ SVGReader = {
 
     if ( typeof d == 'string') {
       // parse path string
+      var s = "d:"+d;
       d = d.match(/([A-Za-z]|-?[0-9]+\.?[0-9]*(?:e-?[0-9]*)?)/g);
-      for (var i=0; i<d.length; i++) {
-        var num = parseFloat(d[i]);
-        if (!isNaN(num)) {
-          d[i] = num;
+      if(d){
+        console.log(s);
+        for (var i=0; i<d.length; i++) {
+          var num = parseFloat(d[i]);
+          if (!isNaN(num)) {
+            d[i] = num;
+          }
         }
+      }else{
+        return null;
       }
     }
     //$().uxmessage('notice', "d: " + d.toString());
@@ -589,276 +596,277 @@ SVGReader = {
     var xPrevCp;
     var yPrevCp;
     var subpath = [];
-
-    while (d.length > 0) {
-      var cmd = getNext();
-      switch(cmd) {
-        case 'M':  // moveto absolute
-          // start new subpath
-          if ( subpath.length > 0) {
-            node.path.push(subpath);
-            subpath = [];
-          }
-          var implicitVerts = 0
-          while (nextIsNum()) {
-            x = getNext();
-            y = getNext();
-            subpath.push([x, y]);
-            implicitVerts += 1;
-          }
-          break
-        case 'm':  //moveto relative
-          // start new subpath
-          if ( subpath.length > 0) {
-            node.path.push(subpath);
-            subpath = [];
-          }
-          if (cmdPrev == '') {
-            // first treated absolute
-            x = getNext();
-            y = getNext();
-            subpath.push([x, y]);
-          }
-          var implicitVerts = 0
-          while (nextIsNum()) {
-            // subsequent treated realtive
-            x += getNext();
-            y += getNext();
-            subpath.push([x, y]);
-            implicitVerts += 1;
-          }
-          break;
-        case 'Z':  // closepath
-        case 'z':  // closepath
-          // loop and finalize subpath
-          if ( subpath.length > 0) {
-            subpath.push(subpath[0]);  // close
-            node.path.push(subpath);
-            x = subpath[subpath.length-1][0];
-            y = subpath[subpath.length-1][1];
-            subpath = [];
-          }
-          break
-        case 'L':  // lineto absolute
-          while (nextIsNum()) {
-            x = getNext();
-            y = getNext();
-            subpath.push([x, y]);
-          }
-          break
-        case 'l':  // lineto relative
-          while (nextIsNum()) {
-            x += getNext();
-            y += getNext();
-            subpath.push([x, y]);
-          }
-          break
-        case 'H':  // lineto horizontal absolute
-          while (nextIsNum()) {
-            x = getNext();
-            subpath.push([x, y]);
-          }
-          break
-        case 'h':  // lineto horizontal relative
-          while (nextIsNum()) {
-            x += getNext();
-            subpath.push([x, y]);
-          }
-          break;
-        case 'V':  // lineto vertical absolute
-          while (nextIsNum()) {
-            y = getNext()
-            subpath.push([x, y])
-          }
-          break;
-        case 'v':  // lineto vertical realtive
-          while (nextIsNum()) {
-            y += getNext();
-            subpath.push([x, y]);
-          }
-          break;
-        case 'C':  // curveto cubic absolute
-          while (nextIsNum()) {
-            var x2 = getNext();
-            var y2 = getNext();
-            var x3 = getNext();
-            var y3 = getNext();
-            var x4 = getNext();
-            var y4 = getNext();
-            subpath.push([x,y]);
-            this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
-            subpath.push([x4,y4]);
-            x = x4;
-            y = y4;
-            xPrevCp = x3;
-            yPrevCp = y3;
-          }
-          break
-        case 'c':  // curveto cubic relative
-          while (nextIsNum()) {
-            var x2 = x + getNext();
-            var y2 = y + getNext();
-            var x3 = x + getNext();
-            var y3 = y + getNext();
-            var x4 = x + getNext();
-            var y4 = y + getNext();
-            subpath.push([x,y]);
-            this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
-            subpath.push([x4,y4]);
-            x = x4;
-            y = y4;
-            xPrevCp = x3;
-            yPrevCp = y3;
-          }
-          break
-        case 'S':  // curveto cubic absolute shorthand
-          while (nextIsNum()) {
-            var x2;
-            var y2;
-            if (cmdPrev.match(/[CcSs]/)) {
-              x2 = x-(xPrevCp-x);
-              y2 = y-(yPrevCp-y);
-            } else {
-              x2 = x;
-              y2 = y;
+    if(d){
+      while (d.length > 0) {
+        var cmd = getNext();
+        switch(cmd) {
+          case 'M':  // moveto absolute
+            // start new subpath
+            if ( subpath.length > 0) {
+              node.path.push(subpath);
+              subpath = [];
             }
-            var x3 = getNext();
-            var y3 = getNext();
-            var x4 = getNext();
-            var y4 = getNext();
-            subpath.push([x,y]);
-            this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
-            subpath.push([x4,y4]);
-            x = x4;
-            y = y4;
-            xPrevCp = x3;
-            yPrevCp = y3;
-          }
-          break
-        case 's':  // curveto cubic relative shorthand
-          while (nextIsNum()) {
-            var x2;
-            var y2;
-            if (cmdPrev.match(/[CcSs]/)) {
-              x2 = x-(xPrevCp-x);
-              y2 = y-(yPrevCp-y);
-            } else {
-              x2 = x;
-              y2 = y;
+            var implicitVerts = 0
+            while (nextIsNum()) {
+              x = getNext();
+              y = getNext();
+              subpath.push([x, y]);
+              implicitVerts += 1;
             }
-            var x3 = x + getNext();
-            var y3 = y + getNext();
-            var x4 = x + getNext();
-            var y4 = y + getNext();
-            subpath.push([x,y]);
-            this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
-            subpath.push([x4,y4]);
-            x = x4;
-            y = y4;
-            xPrevCp = x3;
-            yPrevCp = y3;
-          }
-          break
-        case 'Q':  // curveto quadratic absolute
-          while (nextIsNum()) {
-            var x2 = getNext();
-            var y2 = getNext();
-            var x3 = getNext();
-            var y3 = getNext();
-            subpath.push([x,y]);
-            this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
-            subpath.push([x3,y3]);
-            x = x3;
-            y = y3;
-          }
-          break
-        case 'q':  // curveto quadratic relative
-          while (nextIsNum()) {
-            var x2 = x + getNext();
-            var y2 = y + getNext();
-            var x3 = x + getNext();
-            var y3 = y + getNext();
-            subpath.push([x,y]);
-            this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
-            subpath.push([x3,y3]);
-            x = x3;
-            y = y3;
-          }
-          break
-        case 'T':  // curveto quadratic absolute shorthand
-          while (nextIsNum()) {
-            var x2;
-            var y2;
-            if (cmdPrev.match(/[QqTt]/)) {
-              x2 = x-(xPrevCp-x);
-              y2 = y-(yPrevCp-y);
-            } else {
-              x2 = x;
-              y2 = y;
+            break
+          case 'm':  //moveto relative
+            // start new subpath
+            if ( subpath.length > 0) {
+              node.path.push(subpath);
+              subpath = [];
             }
-            var x3 = getNext();
-            var y3 = getNext();
-            subpath.push([x,y]);
-            this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
-            subpath.push([x3,y3]);
-            x = x3;
-            y = y3;
-            xPrevCp = x2;
-            yPrevCp = y2;
-          }
-          break
-        case 't':  // curveto quadratic relative shorthand
-          while (nextIsNum()) {
-            var x2;
-            var y2;
-            if (cmdPrev.match(/[QqTt]/)) {
-              x2 = x-(xPrevCp-x);
-              y2 = y-(yPrevCp-y);
-            } else {
-              x2 = x;
-              y2 = y;
+            if (cmdPrev == '') {
+              // first treated absolute
+              x += getNext();
+              y += getNext();
+              subpath.push([x, y]);
             }
-            var x3 = x + getNext();
-            var y3 = y + getNext();
-            subpath.push([x,y]);
-            this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
-            subpath.push([x3,y3]);
-            x = x3;
-            y = y3;
-            xPrevCp = x2;
-            yPrevCp = y2;
-          }
-          break
-        case 'A':  // eliptical arc absolute
-          while (nextIsNum()) {
-            var rx = getNext();
-            var ry = getNext();
-            var xrot = getNext();
-            var large = getNext();
-            var sweep = getNext();
-            var x2 = getNext();
-            var y2 = getNext();
-            this.addArc(subpath, x, y, rx, ry, xrot, large, sweep, x2, y2, tolerance2);
-            x = x2
-            y = y2
-          }
-          break
-        case 'a':  // elliptical arc relative
-          while (nextIsNum()) {
-            var rx = getNext();
-            var ry = getNext();
-            var xrot = getNext();
-            var large = getNext();
-            var sweep = getNext();
-            var x2 = x + getNext();
-            var y2 = y + getNext();
-            this.addArc(subpath, x, y, rx, ry, xrot, large, sweep, x2, y2, tolerance2);
-            x = x2
-            y = y2
-          }
-          break
-      }
+            var implicitVerts = 0
+            while (nextIsNum()) {
+              // subsequent treated realtive
+              x += getNext();
+              y += getNext();
+              subpath.push([x, y]);
+              implicitVerts += 1;
+            }
+            break;
+          case 'Z':  // closepath
+          case 'z':  // closepath
+            // loop and finalize subpath
+            if ( subpath.length > 0) {
+              subpath.push(subpath[0]);  // close
+              node.path.push(subpath);
+              x = subpath[subpath.length-1][0];
+              y = subpath[subpath.length-1][1];
+              subpath = [];
+            }
+            break
+          case 'L':  // lineto absolute
+            while (nextIsNum()) {
+              x = getNext();
+              y = getNext();
+              subpath.push([x, y]);
+            }
+            break
+          case 'l':  // lineto relative
+            while (nextIsNum()) {
+              x += getNext();
+              y += getNext();
+              subpath.push([x, y]);
+            }
+            break
+          case 'H':  // lineto horizontal absolute
+            while (nextIsNum()) {
+              x = getNext();
+              subpath.push([x, y]);
+            }
+            break
+          case 'h':  // lineto horizontal relative
+            while (nextIsNum()) {
+              x += getNext();
+              subpath.push([x, y]);
+            }
+            break;
+          case 'V':  // lineto vertical absolute
+            while (nextIsNum()) {
+              y = getNext()
+              subpath.push([x, y])
+            }
+            break;
+          case 'v':  // lineto vertical realtive
+            while (nextIsNum()) {
+              y += getNext();
+              subpath.push([x, y]);
+            }
+            break;
+          case 'C':  // curveto cubic absolute
+            while (nextIsNum()) {
+              var x2 = getNext();
+              var y2 = getNext();
+              var x3 = getNext();
+              var y3 = getNext();
+              var x4 = getNext();
+              var y4 = getNext();
+              subpath.push([x,y]);
+              this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
+              subpath.push([x4,y4]);
+              x = x4;
+              y = y4;
+              xPrevCp = x3;
+              yPrevCp = y3;
+            }
+            break
+          case 'c':  // curveto cubic relative
+            while (nextIsNum()) {
+              var x2 = x + getNext();
+              var y2 = y + getNext();
+              var x3 = x + getNext();
+              var y3 = y + getNext();
+              var x4 = x + getNext();
+              var y4 = y + getNext();
+              subpath.push([x,y]);
+              this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
+              subpath.push([x4,y4]);
+              x = x4;
+              y = y4;
+              xPrevCp = x3;
+              yPrevCp = y3;
+            }
+            break
+          case 'S':  // curveto cubic absolute shorthand
+            while (nextIsNum()) {
+              var x2;
+              var y2;
+              if (cmdPrev.match(/[CcSs]/)) {
+                x2 = x-(xPrevCp-x);
+                y2 = y-(yPrevCp-y);
+              } else {
+                x2 = x;
+                y2 = y;
+              }
+              var x3 = getNext();
+              var y3 = getNext();
+              var x4 = getNext();
+              var y4 = getNext();
+              subpath.push([x,y]);
+              this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
+              subpath.push([x4,y4]);
+              x = x4;
+              y = y4;
+              xPrevCp = x3;
+              yPrevCp = y3;
+            }
+            break
+          case 's':  // curveto cubic relative shorthand
+            while (nextIsNum()) {
+              var x2;
+              var y2;
+              if (cmdPrev.match(/[CcSs]/)) {
+                x2 = x-(xPrevCp-x);
+                y2 = y-(yPrevCp-y);
+              } else {
+                x2 = x;
+                y2 = y;
+              }
+              var x3 = x + getNext();
+              var y3 = y + getNext();
+              var x4 = x + getNext();
+              var y4 = y + getNext();
+              subpath.push([x,y]);
+              this.addCubicBezier(subpath, x, y, x2, y2, x3, y3, x4, y4, 0, tolerance2);
+              subpath.push([x4,y4]);
+              x = x4;
+              y = y4;
+              xPrevCp = x3;
+              yPrevCp = y3;
+            }
+            break
+          case 'Q':  // curveto quadratic absolute
+            while (nextIsNum()) {
+              var x2 = getNext();
+              var y2 = getNext();
+              var x3 = getNext();
+              var y3 = getNext();
+              subpath.push([x,y]);
+              this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
+              subpath.push([x3,y3]);
+              x = x3;
+              y = y3;
+            }
+            break
+          case 'q':  // curveto quadratic relative
+            while (nextIsNum()) {
+              var x2 = x + getNext();
+              var y2 = y + getNext();
+              var x3 = x + getNext();
+              var y3 = y + getNext();
+              subpath.push([x,y]);
+              this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
+              subpath.push([x3,y3]);
+              x = x3;
+              y = y3;
+            }
+            break
+          case 'T':  // curveto quadratic absolute shorthand
+            while (nextIsNum()) {
+              var x2;
+              var y2;
+              if (cmdPrev.match(/[QqTt]/)) {
+                x2 = x-(xPrevCp-x);
+                y2 = y-(yPrevCp-y);
+              } else {
+                x2 = x;
+                y2 = y;
+              }
+              var x3 = getNext();
+              var y3 = getNext();
+              subpath.push([x,y]);
+              this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
+              subpath.push([x3,y3]);
+              x = x3;
+              y = y3;
+              xPrevCp = x2;
+              yPrevCp = y2;
+            }
+            break
+          case 't':  // curveto quadratic relative shorthand
+            while (nextIsNum()) {
+              var x2;
+              var y2;
+              if (cmdPrev.match(/[QqTt]/)) {
+                x2 = x-(xPrevCp-x);
+                y2 = y-(yPrevCp-y);
+              } else {
+                x2 = x;
+                y2 = y;
+              }
+              var x3 = x + getNext();
+              var y3 = y + getNext();
+              subpath.push([x,y]);
+              this.addQuadraticBezier(subpath, x, y, x2, y2, x3, y3, 0, tolerance2);
+              subpath.push([x3,y3]);
+              x = x3;
+              y = y3;
+              xPrevCp = x2;
+              yPrevCp = y2;
+            }
+            break
+          case 'A':  // eliptical arc absolute
+            while (nextIsNum()) {
+              var rx = getNext();
+              var ry = getNext();
+              var xrot = getNext();
+              var large = getNext();
+              var sweep = getNext();
+              var x2 = getNext();
+              var y2 = getNext();
+              this.addArc(subpath, x, y, rx, ry, xrot, large, sweep, x2, y2, tolerance2);
+              x = x2
+              y = y2
+            }
+            break
+          case 'a':  // elliptical arc relative
+            while (nextIsNum()) {
+              var rx = getNext();
+              var ry = getNext();
+              var xrot = getNext();
+              var large = getNext();
+              var sweep = getNext();
+              var x2 = x + getNext();
+              var y2 = y + getNext();
+              this.addArc(subpath, x, y, rx, ry, xrot, large, sweep, x2, y2, tolerance2);
+              x = x2
+              y = y2
+            }
+            break
+        }
 	  
+      }
       cmdPrev = cmd;
     }
     // finalize subpath
