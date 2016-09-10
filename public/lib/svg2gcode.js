@@ -3,7 +3,7 @@ function svg2gcode(svg, settings) {
   svg = svg.replace(/^[\n\r \t]/gm, '');
   settings = settings || {};
   settings.passes = settings.passes || 1;
-  settings.materialWidth = settings.materialWidth || 6;
+  settings.materialWidth = settings.materialWidth || 50;
   settings.passWidth = settings.materialWidth/settings.passes;
   settings.scale = settings.scale || -1;
   settings.cutZ = settings.cutZ || -108; // cut z
@@ -25,7 +25,7 @@ function svg2gcode(svg, settings) {
   
   while(idx--) {
     var subidx = paths[idx].length;
-    var bounds = { x : Infinity , y : Infinity, x2 : -Infinity, y2: -Infinity, area : 0};
+    var bounds = { x : Infinity , y : Infinity, x2 : -Infinity, y2: -Infinity, area : 0,center:{x:0,y:0},distance:0};
 
     // find lower and upper bounds
     while(subidx--) {
@@ -47,14 +47,18 @@ function svg2gcode(svg, settings) {
 
     // calculate area
     bounds.area = (1 + bounds.x2 - bounds.x) * (1 + bounds.y2-bounds.y);
+    bounds.center.x = (bounds.x+bounds.x2)/2;
+    bounds.center.y = (bounds.y+bounds.y2)/2;
+    bounds.distance = bounds.center.x*bounds.center.x+bounds.center.y*bounds.center.y;
     paths[idx].bounds = bounds;
   }
 
   // cut the inside parts first
-  paths.sort(function(a, b) {
+  //paths.sort(function(a, b) {
     // sort by area
-    return (a.bounds.area < b.bounds.area) ? -1 : 1;
-  });
+    //return (a.bounds.distance>b.bounds.distance)?-1:1;
+    // return (a.bounds.area < b.bounds.area) ? -1 : 1;
+  //});
   if(settings.mode=="axidraw"){
     gcode = [];
   }else{
@@ -78,7 +82,7 @@ function svg2gcode(svg, settings) {
     // seek to index 0
     if(settings.mode=="axidraw"){
         gcode.push(['xm',
-          Math.max(10,Math.floor(getLength(path[0].x-prevPosition.x,path[0].y-prevPosition.y))),
+          Math.max(10,Math.floor(getLength(path[0].x-prevPosition.x,path[0].y-prevPosition.y)*0.3)),
           getPulses(getPulsesDist(path[0].x))-getPulses(getPulsesDist(prevPosition.x)),
           getPulses(getPulsesDist(path[0].y))-getPulses(getPulsesDist(prevPosition.y))
         ].join(','));
@@ -87,7 +91,6 @@ function svg2gcode(svg, settings) {
         gcode.push(['xm',100,0,0].join(','));
         prevPosition.x = (path[0].x);
         prevPosition.y = (path[0].y);
-        console.log("x:",path[0].x);
     }else{
       gcode.push(['G1',
         'X' + scale(path[0].x),

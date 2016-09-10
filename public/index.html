@@ -48,8 +48,9 @@
 
 
 <div id="complexity">
-Number of Paths:
+路径总数:
 <strong>{[ canvas.complexity() ]}</strong>
+已执行:<span id="working-percent">0</span>% 已执行时间:<span id="working-time">0</span>秒
 <span id="position-label">x:0 y:0</span>
 </div>
 
@@ -117,7 +118,7 @@ Number of Paths:
 	<div class="tab-pane active" id="gcode-inout">
 		<p style="position:relative;top:-5px;margin:0 0;height:42px;">
 			<button class="file btn btn-info"><input id='addsvg' type="file" >导入 SVG/DXF 文件</input></button>
-			<select id="mode" style="width:140px;margin-top:10px;height:30px;" ng-model="modeSelected" ng-change="modeChanged()">
+			<select id="mode" style="width:140px;margin-top:10px;height:30px;" ng-model="modeSelected" ng-change="modeChanged()" ng-open="refreshSerialPort()">
 				<option value="gcode">GCode 模式</option>
 				<option value="axidraw" selected="selected">Axidraw 模式</option>
 			</select>
@@ -127,22 +128,30 @@ Number of Paths:
 			<button id="sendBt" class="btn btn-success" style="width:80px;margin-top:-10px;" onClick="onSend();">发送</button>
 		<p style="position:relative;top:-5px;left:0px;">
 			<button id="connectBt" class="btn btn-success" style="width:100px;" onClick="onConnect();">连接</button>
-			<select id="serialport" style="width:208px;margin-top:10px;height:30px;"></select>
-			<select id="speed" style="width:85px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
+			<select id="serialport" style="width:215px;margin-top:10px;height:30px;"></select>
+			<select id="speed" style="width:125px;margin-top:10px;height:30px;" ng-model="speedSelected" ng-change="speedChanged()">
+				<option value="30">F30</option>
 				<option value="50">F50</option>
-				<option value="100">F100</option>
+				<option value="60">F60</option>
+				<option value="80">F80</option>
+				<option value="100" selected="selected">F100</option>
+				<option value="120">F120</option>
+				<option value="160">F160</option>
 				<option value="200">F200</option>
+				<option value="250">F250</option>
+				<option value="300">F300</option>
+				<option value="350">F350</option>
 				<option value="400">F400</option>
-				<option value="500" selected="selected">F500</option>
+				<option value="500">F500</option>
 				<option value="800">F800</option>
 				<option value="1500">F1500</option>
 			</select>
-			<button type="button" class="btn" style="width:40px;" ng-click="refreshGCode()">
+			<button type="button" class="btn" style="width:40px;display:none;" ng-click="refreshGCode()">
 			<img src="assets/refresh.png" width="15px" height="15px"/>
 			</button>
 		</p>
 		<div style="position:relative;top:-10px;left:0px;">
-			<button type="button" class="btn btn-success"  style="position:absolute;top:75px;left:0px;width:100px;height:65px;" ng-click="printGCode()">
+			<button id="start-bt" type="button" class="btn btn-success"  style="position:absolute;top:75px;left:0px;width:100px;height:65px;" ng-click="printGCode()">
 			开始
 			</button>
 			<button type="button" class="btn" style="position:absolute;top:0px;left:110px;width:100px;height:65px;" ng-click="moveUp()">

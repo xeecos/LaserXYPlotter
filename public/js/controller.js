@@ -631,30 +631,41 @@ $scope.updateGCode = function(){
 }
 var _gcodes = [];
 var _position = {x:0,y:0};
-
+var _totalGCodeLength = 1;
+var _startTime = 0;
 $scope.sendNext = function(){
   if(_gcodes.length>0){
     var cmd = _gcodes.shift();
+    $("#working-time").html(Math.floor((new Date().getTime()-_startTime)/1000));
     if(cmd=="home"){
-      //this.goZero();
+      $scope.goZero();
+      $scope.workingStatus = "idle";
+      $("#start-bt").html("开始");
+      $("#working-percent").html("100");
     }else{
+      
+      $("#working-percent").html(""+Math.floor((_totalGCodeLength-_gcodes.length)/_totalGCodeLength*100));
       if(cmd.indexOf("xm,")>-1){
         var p = cmd.split(",");
         _position.x += Math.floor(p[2]);
         _position.y += Math.floor(p[3]);
         console.log(p[1]*1);
         $scope.sendGCode(cmd+"\n");
-        setTimeout($scope.sendNext,p[1]);
+        if($scope.workingStatus == "running"){
+          setTimeout($scope.sendNext,p[1]);
+        }
       }else{
         $scope.sendGCode(cmd+"\n");
-        setTimeout($scope.sendNext,100);
+        if($scope.workingStatus == "running"){
+          setTimeout($scope.sendNext,100);
+        }
       }
     }
+  }else{
   }
 }
 $scope.sendGCode = function(cmd){
   if(connectId!=-1){
-    console.log(cmd);
 	  chrome.serial.send(connectId, this.convertStringToArrayBuffer(cmd), function(result){});
   }
 }
@@ -670,18 +681,35 @@ $scope.convertStringToArrayBuffer=function(str) {
 $scope.resetGCode = function(){
   _gcodes = [];
 }
-  $scope.printGCode = function() {
-    var speed = $("#speed option:selected" ).val();
-    consoleGCodeValue = canvas.toSVG();
-    consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-          scale : this.modeSelected=="axidraw"?5:0.5,
-          feedRate:speed,
-          seekRate:2.28,
-          mode:this.modeSelected,
-          power:512
-        });
-	  _gcodes = consoleGCodeValue.split("\n");
-    this.sendNext();
+$scope.workingStatus = "idle";
+$scope.printGCode = function() {
+  if(connectId==-1){
+    // return;
+  }
+  if(this.workingStatus=="idle"){
+      this.workingStatus = "running";
+      var speed = $("#speed option:selected" ).val();
+      consoleGCodeValue = canvas.toSVG();
+      consoleGCodeValue = svg2gcode(consoleGCodeValue, {
+            scale : this.modeSelected=="axidraw"?5:0.5,
+            feedRate:speed,
+            seekRate:2.28,
+            mode:this.modeSelected,
+            power:512
+          });
+      _gcodes = consoleGCodeValue.split("\n");
+      _totalGCodeLength = _gcodes.length;
+      _startTime = new Date().getTime();
+      this.sendNext();
+      $("#start-bt").html("暂停");
+    }else if($scope.workingStatus=="pausing"){
+      $scope.workingStatus = "running";
+      this.sendNext();
+      $("#start-bt").html("暂停");
+    }else if($scope.workingStatus=="running"){
+      $scope.workingStatus = "pausing";
+      $("#start-bt").html("继续");
+    }
   };
   $scope.setZero = function() {
     if(this.modeSelected=="axidraw"){
@@ -795,7 +823,7 @@ $scope.previewArea = function() {
  $scope.switchLaser = function() {
 	laserStatus = !laserStatus;
   if(this.modeSelected=="axidraw"){
-    this.sendGCode("se,"+(laserStatus==true?"1,20":0)+"\n");
+    this.sendGCode("se,"+(laserStatus==true?"1,60":0)+"\n");
     this.sendGCode("sp,"+(laserStatus==true?0:1)+"\n");
   }else{
     this.sendGCode("M3 P"+(laserStatus==true?3:0)+"\n");
@@ -805,7 +833,7 @@ $scope.previewArea = function() {
   $scope.speedChanged = function(){
     this.refreshGCode();
   }
-  $scope.speedSelected = "500";
+  $scope.speedSelected = "100";
   $scope.modeChanged = function(){
     this.modeSelected = $("#mode option:selected").val();
     this.refreshGCode();
@@ -838,6 +866,7 @@ $scope.previewArea = function() {
   initCustomization();
 
   $scope.refreshSerialPort = function(){
+    console.log("refreshSerialPort");
     $("#serialport").empty();
     chrome.serial.getDevices(function(ports){
     for(var i=0;i<ports.length;i++){
@@ -1074,14 +1103,16 @@ function onConnect(){
 		},1000);
 		return;
 	}
-    var port = $("#serialport option:selected" ).val();
-	chrome.serial.connect(port, {bitrate: 115200},  function(connectionInfo) {
-		connectId = connectionInfo.connectionId;
-		$("#connectBt").html("断开连接");
-		setTimeout(function(){
+  var port = $("#serialport option:selected" ).val();
+  if(port){
+    chrome.serial.connect(port, {bitrate: 115200},  function(connectionInfo) {
+      connectId = connectionInfo.connectionId;
+      $("#connectBt").html("断开连接");
+      setTimeout(function(){
 
-		},1000);
-	});
+      },1000);
+    });
+  }
 }
 chrome.serial.onReceive.addListener(onReceiveCallback);
 

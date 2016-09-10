@@ -564,7 +564,6 @@ SVGReader = {
       var s = "d:"+d;
       d = d.match(/([A-Za-z]|-?[0-9]+\.?[0-9]*(?:e-?[0-9]*)?)/g);
       if(d){
-        console.log(s);
         for (var i=0; i<d.length; i++) {
           var num = parseFloat(d[i]);
           if (!isNaN(num)) {

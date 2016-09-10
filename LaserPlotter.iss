@@ -5,7 +5,7 @@
 
 [Setup]
 AppName=Laser Plotter
-AppVersion=1.0.1
+AppVersion=1.0.4
 DefaultDirName={pf}\Laser Plotter
 DefaultGroupName=Laser Plotter
 UninstallDisplayIcon={app}\Laser Plotter.exe
