@@ -1,0 +1,115 @@
+<html>
+    <head>
+        <title>文字</title>
+        <script src="lib/jquery.js"></script>
+        <script src="js/potrace.js"></script>
+        <link rel="stylesheet" href="css/fonts.css">
+    </head>
+    <body style="margin:0 0;">
+        <canvas width="530" height="200" id="canvas-text"></canvas>
+        <canvas width="530" height="200" id="canvas-svg"></canvas>
+        <p>
+            <input type="text" value="" id="input-text" placeholder="input your text"></input>
+        </p>
+        <script>
+            var canvas_text = document.getElementById("canvas-text");
+            var context_text = canvas_text.getContext("2d");
+            var DOMURL = window.URL || window.webkitURL || window;
+            var img = new Image();
+            $("#input-text").on("change",function(){
+                context_text.clearRect(0, 0, canvas_text.width, canvas_text.height);
+                context_text.fillStyle="white";
+                context_text.fillRect(0,0,canvas_text.width, canvas_text.height);
+                context_text.fillStyle = "black";
+                context_text.font = "96px Xi";
+                context_text.fillText($("#input-text").val(), 2, 96);
+                Potrace.setParameter({optcurve:false,opttolerance:1,turdsize:1});
+                Potrace.loadImageFromCanvas(canvas_text);
+                Potrace.process(function(){
+                    var svg = new Blob([Potrace.getSVG(1,"curve")], {type: 'image/svg+xml;charset=utf-8'});
+                    var url = DOMURL.createObjectURL(svg);
+                    img.src = url;
+                });
+            });
+
+            var canvas_svg = document.getElementById("canvas-svg");
+            var context_svg = canvas_svg.getContext("2d");
+            img.onload = function () {
+                context_svg.clearRect(0, 0, canvas_svg.width, canvas_svg.height);
+                // context_svg.fillStyle="white";
+                // context_svg.fillRect(0,0,context_svg.width, context_svg.height);
+                context_svg.drawImage(img, 0, 0);
+                DOMURL.revokeObjectURL(img.src);
+
+                var imgData;
+                var points = [];
+                var prev_points = [];
+                function checkDistance(x,y){
+                    for(var i=0;i<prev_points.length;i++){
+                        var dist = (prev_points[i][0]-x)*(prev_points[i][0]-x)+(prev_points[i][1]-y)*(prev_points[i][1]-y);
+                        if(dist<2){
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                for(var t=0;t<1;t++){
+                    points = [];
+                    imgData = context_svg.getImageData(0,0,canvas_svg.width,canvas_svg.height);
+                    for(var i=0;i<canvas_svg.width;i++){
+                        for(var j=0;j<canvas_svg.height;j++){
+                            var index = (j*canvas_svg.width+i)*4;
+                            if(imgData.data[index+3]>10*(t+1)){
+                                if(checkDistance(i,j)){
+                                    points.push([i,j]);
+                                }
+                            }
+                        }
+                    }
+                    if(t==0){
+                        prev_points = points.concat([]);
+                    }
+                    context_svg.clearRect(0, 0, canvas_svg.width, canvas_svg.height);
+                    context_svg.beginPath();
+                    for(var i=0;i<points.length;i++){
+                        // for(var j=1;j<=6-t;j++){
+                            context_svg.arc(points[i][0], points[i][1], 3-t, 0, 2 * Math.PI, false);
+                        // }
+                    }
+                    var pixels = context_text.getImageData(0,0,canvas_text.width,canvas_text.height);
+                    var origins = [];
+                    for(var i=0;i<canvas_text.width;i++){
+                        for(var j=0;j<canvas_text.height;j++){
+                            var index = (j*canvas_svg.width+i)*4;
+                            origins[j*canvas_svg.width+i] = pixels.data[index]<10;
+                        }
+                    }
+                    context_svg.lineWidth = 1;
+                    context_svg.strokeStyle = 'rgba(0, 0, 0, 0.01)';
+                    context_svg.stroke();
+                    imgData = context_svg.getImageData(0,0,canvas_svg.width,canvas_svg.height);
+                    for(var i=0;i<points.length;i++){
+                        var index = (points[i][1]*canvas_svg.width+points[i][0])*4;
+                        imgData.data[index+3] = 0;
+                    }
+                    for(var i=0;i<canvas_svg.width;i++){
+                        for(var j=0;j<canvas_svg.height;j++){
+                            var index = (j*canvas_svg.width+i)*4;
+                            if(imgData.data[index+3]<35){
+                                imgData.data[index+3]=0;
+                            }else{
+                                if(origins[j*canvas_svg.width+i]){
+                                    imgData.data[index+3]=255;
+                                }else{
+                                    imgData.data[index+3]=0;
+                                }
+                            }
+                        }
+                    }
+                    context_svg.putImageData(imgData,0,0)
+                }
+            }
+
+        </script>
+    </body>
+</html>

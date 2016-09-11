@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/bootstrap.css">
 <link rel="stylesheet" href="css/kitchensink.css">
 <link rel="stylesheet" type="text/css" href="css/ruler.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.jspanel.min.css">
 <script type="text/javascript" src="js/rulers.js"></script>
 <script type="text/javascript" src="js/ruler.js"></script>
 <script src="lib/prism.js"></script>
@@ -24,6 +25,7 @@
 <script src="js/paster.js"></script>
 <script src="js/angular.min.js"></script>
 <script src="js/jquery.mousewheel.min.js"></script>
+<script src="js/jquery.jspanel.min.js"></script>
 <script src="lib/font_definitions.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/app_config.js"></script>
@@ -122,6 +124,8 @@
 				<option value="gcode">GCode 模式</option>
 				<option value="axidraw" selected="selected">Axidraw 模式</option>
 			</select>
+
+			<button onClick="openTextLayer();" class="btn btn-info">添加文字</button>
 		</p>
 		<textarea id="gcode-console" bind-value-to="consoleGCode" spellcheck="false"></textarea>
 		<input type="text" id="commandSend" style="width:355px;"></input>
@@ -183,6 +187,8 @@
 </div>
 
 </div>
+</div>
+
 <script>
 	function fileSelect(e) {
 		e = e || window.event;
@@ -291,11 +297,7 @@
 	isDown = false;
 	});
 	})();
-</script>
-
-</div>
-
-<script>
+	
 (function() {
 fabric.util.addListener(fabric.window, 'load', function() {
 var canvas = this.__canvas || this.canvas,
@@ -347,6 +349,19 @@ document.onmousedown = function(event)
           add_file(file);
         }
       });
+	  function openTextLayer(){
+		  $.jsPanel({
+			  theme:"DarkSlateGray filledlight",
+			  draggable:false,
+			  resizable:false,
+    		  contentSize: {width: 1080,height:620},
+			  headerTitle:"文字",
+			  headerControls: { controls: 'closeonly' },
+			  contentIframe: {
+        		src: 'font.html'
+    		  }
+		  });
+	  }
     </script>
 </body>
 </html>
