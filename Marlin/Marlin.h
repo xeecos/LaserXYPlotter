@@ -48,15 +48,7 @@
 
 #include "WString.h"
 
-#ifdef AT90USB
-   #ifdef BTENABLED
-         #define MYSERIAL bt
-   #else
-         #define MYSERIAL Serial
-   #endif // BTENABLED
-#else
-  #define MYSERIAL MSerial
-#endif
+#define MYSERIAL MSerial
 
 #define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
 #define SERIAL_PROTOCOL_F(x,y) (MYSERIAL.print(x,y))
