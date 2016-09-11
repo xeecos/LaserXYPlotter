@@ -6,10 +6,10 @@
         <link rel="stylesheet" href="css/fonts.css">
     </head>
     <body style="margin:0 0;">
-        <canvas width="530" height="200" id="canvas-text"></canvas>
-        <canvas width="530" height="200" id="canvas-svg"></canvas>
-        <p>
-            <input type="text" value="" id="input-text" placeholder="input your text"></input>
+        <canvas width="1080" height="200" id="canvas-text"></canvas>
+        <canvas width="1080" height="200" id="canvas-svg"></canvas>
+        <p style="margin:20px 20px">
+            <input type="text" value="" id="input-text" style="width:200px;" placeholder="input your text"></input>
         </p>
         <script>
             var canvas_text = document.getElementById("canvas-text");
@@ -21,8 +21,8 @@
                 context_text.fillStyle="white";
                 context_text.fillRect(0,0,canvas_text.width, canvas_text.height);
                 context_text.fillStyle = "black";
-                context_text.font = "96px Xi";
-                context_text.fillText($("#input-text").val(), 2, 96);
+                context_text.font = "96px Sacramento";
+                context_text.fillText($("#input-text").val(), 10, 100);
                 Potrace.setParameter({optcurve:false,opttolerance:1,turdsize:1});
                 Potrace.loadImageFromCanvas(canvas_text);
                 Potrace.process(function(){
@@ -40,7 +40,7 @@
                 // context_svg.fillRect(0,0,context_svg.width, context_svg.height);
                 context_svg.drawImage(img, 0, 0);
                 DOMURL.revokeObjectURL(img.src);
-
+                // return;
                 var imgData;
                 var points = [];
                 var prev_points = [];
@@ -95,7 +95,7 @@
                     for(var i=0;i<canvas_svg.width;i++){
                         for(var j=0;j<canvas_svg.height;j++){
                             var index = (j*canvas_svg.width+i)*4;
-                            if(imgData.data[index+3]<35){
+                            if(imgData.data[index+3]<20){
                                 imgData.data[index+3]=0;
                             }else{
                                 if(origins[j*canvas_svg.width+i]){
@@ -106,7 +106,27 @@
                             }
                         }
                     }
-                    context_svg.putImageData(imgData,0,0)
+                    for(var i=0;i<canvas_svg.width;i++){
+                        for(var j=0;j<canvas_svg.height;j++){
+                            var index = (j*canvas_svg.width+i)*4;
+                            if(imgData.data[index+3]>20){
+                                if(origins[j*canvas_svg.width+i]){
+                                    for(var kx=0;kx<3;kx++){
+                                        for(var ky=0;ky<3;ky++){
+                                            var kindex = ((j+ky-1)*canvas_svg.width+(i+kx-1))*4;
+                                            if(kx!=1&&ky!=1){
+                                                imgData.data[kindex+3]=0;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    context_svg.putImageData(imgData,0,0);
+                    // context_svg.drawImage(img, 0, 0);
+                    DOMURL.revokeObjectURL(img.src);
                 }
             }
 
