@@ -1,6 +1,6 @@
 @font-face {
-  font-family: 'Xi';
-  src: url('fonts/蒙纳简喜宴体.ttf')  format('truetype')
+  font-family: 'Yahei';
+  src: url('fonts/msyh.ttf')  format('truetype')
 }
 @font-face {
   font-family: 'Sacramento';
@@ -10,3 +10,11 @@
   font-family: 'IndieFlower';
   src: url('fonts/IndieFlower.ttf')  format('truetype')
 }
+body { 
+  margin:0px 0px;
+  font-size: 12px;
+	color:#333333;
+	overflow: hidden;
+	background-color: #a8a8a8;
+  font-family: "Open Sans", sans-serif !important; margin: 0; font-size: 14px !important; line-height: 1.5 !important; 
+ }

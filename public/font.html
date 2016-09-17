@@ -1,8 +1,11 @@
 <html>
     <head>
         <title>文字</title>
+        <link rel="stylesheet" href="css/kitchensink.css">
+        <link rel="stylesheet" href="css/bootstrap.css">
         <script src="lib/jquery.js"></script>
         <script src="js/potrace.js"></script>
+        <script src="lib/fabric.js"></script>
         <link rel="stylesheet" href="css/fonts.css">
     </head>
     <body style="margin:0 0;">
@@ -10,109 +13,15 @@
         <canvas width="1080" height="240" id="canvas-svg"></canvas>
         <p style="margin:20px 20px">
             <input type="text" value="hello" id="input-text" style="width:200px;" placeholder="input your text"></input>
-            <input type="text" id="input-gate" style="width:200px;" value="8"></input>
-            <input type="text" id="input-radius" style="width:200px;" value="3"></input>
+            <input type="checkbox" id="outline" checked value="" style="margin-top:-8px;">Outline</input>
+            <input type="checkbox" id="centerline" value="" style="margin-top:-8px;">Centerline</input>
+            <select id="font" style="width:120px">
+            </select>
         </p>
-        <script>
-            var canvas_text = document.getElementById("canvas-text");
-            var context_text = canvas_text.getContext("2d");
-            var DOMURL = window.URL || window.webkitURL || window;
-            var img = new Image();
-            function onChanged(){
-                context_text.clearRect(0, 0, canvas_text.width, canvas_text.height);
-                context_text.fillStyle="white";
-                context_text.fillRect(0,0,canvas_text.width, canvas_text.height);
-                context_text.fillStyle = "black";
-                context_text.font = "144px Sacramento";
-                context_text.fillText($("#input-text").val(), 10, 150);
-                Potrace.setParameter({optcurve:false,opttolerance:1,turdsize:1});
-                Potrace.loadImageFromCanvas(canvas_text);
-                Potrace.process(function(){
-                    var svg = new Blob([Potrace.getSVG(1,"curve")], {type: 'image/svg+xml;charset=utf-8'});
-                    var url = DOMURL.createObjectURL(svg);
-                    img.src = url;
-                });
-            }
-            $("#input-text").on("change",onChanged);
-            $("#input-gate").on("change",onChanged);
-            $("#input-radius").on("change",onChanged);
-
-            var canvas_svg = document.getElementById("canvas-svg");
-            var context_svg = canvas_svg.getContext("2d");
-            img.onload = function () {
-                context_svg.clearRect(0, 0, canvas_svg.width, canvas_svg.height);
-                context_svg.drawImage(img, 0, 0);
-                DOMURL.revokeObjectURL(img.src);
-
-                var imgData;
-                function checkDistance(x,y){
-                    for(var i=0;i<prev_points.length;i++){
-                        var dist = (prev_points[i][0]-x)*(prev_points[i][0]-x)+(prev_points[i][1]-y)*(prev_points[i][1]-y);
-                        if(dist<2){
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                imgData = context_svg.getImageData(0,0,canvas_svg.width,canvas_svg.height);
-
-                var radius = $("#input-radius").val();
-                var gate = $("#input-gate").val();
-                var minRadius = radius;
-                var pixels = context_text.getImageData(0,0,canvas_text.width,canvas_text.height);
-                var origins = [];
-                
-                var edges = [];
-                for(var i=0;i<canvas_svg.width;i++){
-                    for(var j=0;j<canvas_svg.height;j++){
-                        var index = (j*canvas_svg.width+i);
-                        edges[index] = imgData.data[index*4+3]>50;
-                        origins[index] = pixels.data[index*4]<10;
-                    }
-                }
-
-                function findMinRadius(x,y,r){
-                    var minR = 100.0;
-                    var maxR = 0;
-                    var cx = 0;
-                    var cy = 0;
-                    var t = 0;
-                    for(var i=-r;i<=r;i++){
-                        for(var j=-r;j<=r;j++){
-                            if(i==x&&j==y){
-                                continue;
-                            }
-                            var index = (y+j)*canvas_svg.width+(x+i);
-                            if(origins[index]){
-                                t++;
-                                cx+=i;
-                                cy+=j;
-                                var dist = Math.sqrt(i*i+j*j);
-                            }
-                        }
-                    }
-                    cx /= t;
-                    cy /= t;
-                    var dist = Math.sqrt(cx*cx+cy*cy);
-                    return dist<=minRadius;
-                }
-                context_svg.clearRect(0, 0, canvas_svg.width, canvas_svg.height);
-                imgData = context_svg.getImageData(0,0,canvas_svg.width,canvas_svg.height);
-                for(var i=0;i<canvas_text.width;i++){
-                    for(var j=0;j<canvas_text.height;j++){
-                        var index = (j*canvas_svg.width+i);
-                        imgData.data[index*4+3] = 0;
-                        if(origins[index]&&!edges[index]){
-                            if(findMinRadius(i,j,gate)){
-                                //if(i%2==0||j%2==0){
-                                    imgData.data[index*4+3] = 255;
-                                //}
-                            }
-                        }
-                    }
-                }
-                context_svg.putImageData(imgData,0,0);
-            }
-        </script>
+        <p style="margin:20px 20px">
+            <button onclick="javascript:parent.closePanel();" class="btn btn-warning" style="width:100px;margin-right:10px;">Cancel</button>
+            <button onclick="insertSVG();" class="btn btn-success" style="width:100px;">Insert</button>
+        </p>
+        <script src="js/font_app.js"></script>
     </body>
 </html>

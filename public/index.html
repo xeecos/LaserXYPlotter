@@ -211,6 +211,13 @@
 		$("#addsvg").val("");
 		}
 	}
+	function loadSvgFromString(svg){
+		fabric.loadSVGFromString(svg, function(objects, options) {
+			var obj = fabric.util.groupSVGElements(objects, options);
+			canvas.add(obj).centerObject(obj).renderAll();
+			obj.setCoords();
+			});
+	}
 	document.getElementById('addsvg').addEventListener('change', fileSelect, false);
 	var kitchensink = { };
 	var canvas = new fabric.Canvas('canvas');
@@ -349,8 +356,9 @@ document.onmousedown = function(event)
           add_file(file);
         }
       });
+	  var jspanel;
 	  function openTextLayer(){
-		  $.jsPanel({
+		  jspanel = $.jsPanel({
 			  theme:"DarkSlateGray filledlight",
 			  draggable:false,
 			  resizable:false,
@@ -361,6 +369,9 @@ document.onmousedown = function(event)
         		src: 'font.html'
     		  }
 		  });
+	  }
+	  function closePanel(){
+		  jspanel.close();
 	  }
     </script>
 </body>
