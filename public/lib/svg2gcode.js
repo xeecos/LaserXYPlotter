@@ -82,7 +82,7 @@ function svg2gcode(svg, settings) {
     // seek to index 0
     if(settings.mode=="axidraw"){
         gcode.push(['xm',
-          Math.max(10,Math.floor(getLength(path[0].x-prevPosition.x,path[0].y-prevPosition.y)*0.3)),
+          Math.max(5,Math.floor(getLength(path[0].x-prevPosition.x,path[0].y-prevPosition.y)*0.3)),
           getPulses(getPulsesDist(path[0].x))-getPulses(getPulsesDist(prevPosition.x)),
           getPulses(getPulsesDist(path[0].y))-getPulses(getPulsesDist(prevPosition.y))
         ].join(','));
@@ -116,7 +116,7 @@ function svg2gcode(svg, settings) {
         
         if(settings.mode=="axidraw"){
           localSegment = ['xm',
-            Math.max(10,Math.floor(getLength(segment.x-prevPosition.x,segment.y-prevPosition.y))),
+            Math.max(5,Math.floor(getLength(segment.x-prevPosition.x,segment.y-prevPosition.y))),
             getPulses(getPulsesDist(segment.x))-getPulses(getPulsesDist(prevPosition.x)),
             getPulses(getPulsesDist(segment.y))-getPulses(getPulsesDist(prevPosition.y))
           ].join(',');
