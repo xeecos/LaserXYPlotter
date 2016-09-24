@@ -10,7 +10,7 @@
     "width": 1090,
     "height": 665,
     "toolbar":false,
-    "resizable": false
+    "resizable": true
   },
   "devDependencies": {
     "nw-builder": "^2.2.6"

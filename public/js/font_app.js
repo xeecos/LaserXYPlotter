@@ -3,6 +3,11 @@ var context_text = canvas_text.getContext("2d");
 var DOMURL = window.URL || window.webkitURL || window;
 var platform = navigator.platform;
 var fonts = [];
+//工程 打开 保存 另存为
+//画布 缩放 设置 210x297
+//文字 字体（添加） 大小 加粗 斜体 下划线 上标/下标 行间距  居中 左对齐 右对齐
+//图片 轮廓（阈值） 灰度（填充） 
+//svg灰度  
 $("#font").empty();
 if(platform.indexOf("Mac")>-1){
     fonts = [
@@ -53,7 +58,7 @@ function onChanged(){
         context_text.font = "76px "+$("#font option:selected" ).val();
         context_text.fillText($("#input-text").val(), 60, 150);
     }else{
-        context_text.font = "136px "+$("#font option:selected" ).val();
+        context_text.font = "112px "+$("#font option:selected" ).val();
         context_text.fillText($("#input-text").val(), 10, 150);
     }
     context_text.fillStyle="white";

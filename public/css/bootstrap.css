@@ -3030,6 +3030,12 @@ input[type="submit"].btn.btn-mini {
   margin-bottom: 20px;
   list-style: none;
 }
+.nav-left{
+  float:left;
+}
+.nav-right{
+  float:right;
+}
 .nav > li > a {
   display: block;
 }
