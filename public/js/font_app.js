@@ -4,8 +4,8 @@ var DOMURL = window.URL || window.webkitURL || window;
 var platform = navigator.platform;
 var fonts = [];
 //工程 打开 保存 另存为
-//画布 缩放 设置 210x297
-//文字 字体（添加） 大小 加粗 斜体 下划线 上标/下标 行间距  居中 左对齐 右对齐
+//标尺 设置 210x297
+//切换垂直水平
 //图片 轮廓（阈值） 灰度（填充） 
 //svg灰度  
 $("#font").empty();
