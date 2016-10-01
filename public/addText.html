@@ -71,15 +71,16 @@
       var list = quill.getContents().ops;
       var len = list.length;
       var maxH = 0;
+      var size = 0;
       for(var i=0;i<len;i++){
         var item = list[i];
         var attributes = item.attributes?item.attributes:{};
         var t = item.insert.split("\n");
-        var size = attributes.size?attributes.size:"normal";
+        size = attributes.size?attributes.size:"normal";
         var font = attributes.font?attributes.font.split("-").join(" "):"Impact";    
         var linespacing = (attributes.linespacing?attributes.linespacing.split("s").join("").split("px").join(""):10)*1;
 
-        size = size=="normal"?24:(size=="small"?18:(size=="large"?48:72));
+        size = size=="normal"?48:(size=="small"?36:(size=="large"?64:72));
         if(posX==0){
           posX += size;
           posY += size;
@@ -97,26 +98,30 @@
             }else{
                 posX += m.width;
             }
-            if(maxH<posY){
-              maxH = posY;
-            }
           }
+            if(maxH < posY){
+                maxH = posY;
+            }
         }else{
-          var m = item.insert.split("");
-          for(var f=0;f<m.length;f++){
-            if(m[f]=='\n'){
-              posX += ctx.measureText(m[0]).width;
-              posY = 0;
+            var m = item.insert.split("");
+            if(posY==10){
+                posY = size;
             }else{
-              posY += size;
+
             }
-            if(maxH<posY){
-              maxH = posY;
+            for(var f=0;f<m.length;f++){
+                if(m[f]=='\n'){
+                    posY = f==0?10:size;
+                }else{
+                    posY += size;
+                }
+                if(maxH < posY){
+                    maxH = posY;
+                }
             }
-          }
         }
       }
-      return maxH+10;
+      return maxH+size;
     }
     var dir = "h";
     var outline = true;
@@ -162,7 +167,7 @@
             var underline = attributes.underline?attributes.underline:false;
             var font = attributes.font?attributes.font.split("-").join(" "):"Impact";
             var linespacing = (attributes.linespacing?attributes.linespacing.split("s").join("").split("px").join(""):10)*1;
-            size = size=="normal"?24:(size=="small"?18:(size=="large"?48:72));
+            size = size=="normal"?48:(size=="small"?36:(size=="large"?64:72));
             ctx.font = (bold?"bold ":"")+(italic?"italic ":"")+(underline?"underline ":"")+size+"px "+font;
             if(dir=="h"){
                 if(posY==10){
@@ -181,8 +186,8 @@
                     }else{
                         posX += m.width;
                     }
-                    if(contentWidth<posX){
-                        contentWidth = posX;
+                    if(contentWidth<posX+m.width){
+                        contentWidth = posX+m.width+10;
                     }
                     if(contentHeight<posY){
                         contentHeight = posY;
@@ -196,29 +201,31 @@
 
                 }
                 for(var f=0;f<m.length;f++){
-                if(m[f]=='\n'){
-                    posX += ctx.measureText("    ").width+p;
-                    posY = f==0?10:size;
-                }else{
-                    ctx.fillText(m[f], posX, posY);
-                    posY += size;
+                    if(m[f]=='\n'){
+                        posX += ctx.measureText("    ").width+p;
+                        posY = f==0?10:size;
+                    }else{
+                        ctx.fillText(m[f], posX, posY);
+                        posY += size;
+                    }
+                    if(contentHeight<posY){
+                        contentHeight = posY;
+                    }
                 }
-                if(contentWidth<posX){
-                    contentWidth = posX;
-                }
-                if(contentHeight<posY){
-                    contentHeight = posY;
-                }
-                }
+                p = linespacing;
             }
-            p = linespacing;
+        }
+        if(contentWidth<posX){
+            contentWidth = posX;
         }
         updateCanvas();
     }
     function updateCanvas(){
-      contentWidth = Math.floor(contentWidth)+10;
+      contentWidth = Math.floor(contentWidth);
       contentHeight = Math.floor(contentHeight);
+      
       originImage = ctx.getImageData(0,0,contentWidth,contentHeight);
+      
       Potrace.setParameter({optcurve:false,opttolerance:1,turdsize:1});
       Potrace.loadImageFromCanvas(canvas);
       Potrace.process(function(){
@@ -232,6 +239,7 @@
       var DUMMY_MINUS_ONE = 128;
       var origins = [];
       var edges = [];
+      ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.drawImage(poImg, 0, 0);
       potraceImage = ctx.getImageData(0,0,contentWidth,contentHeight);
       
@@ -362,7 +370,7 @@
           var r = 3;
           var cx = 0;
           var cy = 0;
-          var minR = 100;
+          var minR = 1000;
           for(var i=-r;i<=r;i++){
               for(var j=-r;j<=r;j++){
                   if(i==0&&j==0){
@@ -389,7 +397,7 @@
                   svgPath +=" L"+(cx+x)+" "+(cy+y);
               }
               ctx.lineTo(cx+x,cy+y);
-              findNext(x+cx,y+cy,false);
+              //findNext(x+cx,y+cy,false);
           }else{
               if(!first){
                   svgPath+="\"  stroke=\"black\" stroke-width=\"1\" fill=\"none\" />"
