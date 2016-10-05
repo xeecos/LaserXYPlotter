@@ -82,23 +82,35 @@
 
         size = size=="normal"?48:(size=="small"?36:(size=="large"?64:72));
         if(posX==0){
-          posX += size;
-          posY += size;
+            posX += size;
+            posY += size;
         }else{
-           posY += linespacing;
         }
         ctx.font = size+"px "+font;
         if(dir=="h"){
-          for(var j=0;j<t.length;j++){
-            var m = ctx.measureText(t[j]);
-            var h = size;
-            if(t.length>1){
-                posX = size;
-                posY += h;
+            if(posY==10){
+                posX = 10;
+                posY = size;
             }else{
-                posX += m.width;
+                if(t.length==1){
+                    if(p==0){
+                        posY += linespacing;
+                        p++;
+                    }
+                }else{
+                    p = 0;
+                }
             }
-          }
+            for(var j=0;j<t.length;j++){
+                var m = ctx.measureText(t[j]);
+                var h = size;
+                if(t.length>1&&j<t.length-1){
+                    posX = size;
+                    posY += h;
+                }else{
+                    posX += m.width;
+                }
+            }
             if(maxH < posY){
                 maxH = posY;
             }
@@ -121,6 +133,7 @@
             }
         }
       }
+      console.log(maxH);
       return maxH+size;
     }
     var dir = "h";
@@ -151,6 +164,7 @@
         var originImage;
         var potraceImage;
         canvas.height = h;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, w, h);
         ctx.fillStyle = "#000";
@@ -166,7 +180,7 @@
             var italic = attributes.italic?attributes.italic:false;
             var underline = attributes.underline?attributes.underline:false;
             var font = attributes.font?attributes.font.split("-").join(" "):"Impact";
-            var linespacing = (attributes.linespacing?attributes.linespacing.split("s").join("").split("px").join(""):10)*1;
+            var linespacing = (attributes.linespacing?attributes.linespacing.split("s").join("").split("px").join(""):0)*1;
             size = size=="normal"?48:(size=="small"?36:(size=="large"?64:72));
             ctx.font = (bold?"bold ":"")+(italic?"italic ":"")+(underline?"underline ":"")+size+"px "+font;
             if(dir=="h"){
@@ -174,7 +188,15 @@
                     posX = 10;
                     posY = size;
                 }else{
-                    posY += linespacing;
+                    
+                }
+                if(t.length==1){
+                    if(p==0){
+                        posY += linespacing;
+                        p++;
+                    }
+                }else{
+                    p = 0;
                 }
                 for(var j=0;j<t.length;j++){
                     ctx.fillText(t[j], posX, posY);
@@ -342,6 +364,7 @@
       }
 
       imgData = ctx.getImageData(0,0,contentWidth,contentHeight);
+    //   return;
       var cc = 0
       while( 1 ) {
           if(cc>100){
@@ -359,7 +382,7 @@
               imgData.data[index*4+2] = 0;
               imgData.data[index*4+3] = 0;
               if(centerline&&origins[index]>0){
-                  //imgData.data[index*4+3] = 255;
+                  imgData.data[index*4+3] = 255;
               }else if(outline&&edges[index]>0){
                   imgData.data[index*4+3] = 255;
               }
@@ -392,12 +415,12 @@
               origins[index] = 0;
               if(first){
                   svgPath += "<path d=\"M"+x+" "+y+" L"+(cx+x)+" "+(cy+y);
-                  ctx.moveTo(x,y);
+                //   ctx.moveTo(x,y);
               }else{
                   svgPath +=" L"+(cx+x)+" "+(cy+y);
               }
-              ctx.lineTo(cx+x,cy+y);
-              //findNext(x+cx,y+cy,false);
+            //   ctx.lineTo(cx+x,cy+y);
+              findNext(x+cx,y+cy,false);
           }else{
               if(!first){
                   svgPath+="\"  stroke=\"black\" stroke-width=\"1\" fill=\"none\" />"
@@ -409,14 +432,15 @@
       ctx.strokeStyle = "red";
       if(centerline){
           var svgPath = outline?"":"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
-          for(var k=0;k<5;k++)
-          for(var i=0;i<contentWidth;i++){
-              for(var j=0;j<contentHeight;j++){
-                  var index = (j*contentWidth+i);
-                  if(origins[index]>0){
-                      findNext(i,j,true);
-                  }
-              }
+          for(var k=0;k<1;k++){
+            for(var i=0;i<contentWidth;i++){
+                for(var j=0;j<contentHeight;j++){
+                    var index = (j*contentWidth+i);
+                    if(origins[index]>0){
+                        //findNext(i,j,true);
+                    }
+                }
+            }
           }
           svgPath += outline?"":"</svg>";
       }
