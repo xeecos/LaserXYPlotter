@@ -72,6 +72,7 @@
       var len = list.length;
       var maxH = 0;
       var size = 0;
+      var p = 0;
       for(var i=0;i<len;i++){
         var item = list[i];
         var attributes = item.attributes?item.attributes:{};
@@ -364,13 +365,13 @@
       }
 
       imgData = ctx.getImageData(0,0,contentWidth,contentHeight);
-    //   return;
+
       var cc = 0
       while( 1 ) {
-          if(cc>100){
+          if(cc>10){
               break;
           }
-          if( !hilditchThinning ( contentWidth,contentHeight ) )
+          if( !hilditchThinning ( contentWidth,contentHeight-1 ) )
               break;
       }
 
@@ -388,9 +389,9 @@
               }
           }
       }
-
+      var tt
       function findNext(x,y,first){
-          var r = 3;
+          var r = 2;
           var cx = 0;
           var cy = 0;
           var minR = 1000;
@@ -410,6 +411,7 @@
                   }
               }
           }
+          tt++;
           if(cx!=0||cy!=0){
               var index = ((y+cy)*contentWidth+(x+cx));
               origins[index] = 0;
@@ -420,6 +422,7 @@
                   svgPath +=" L"+(cx+x)+" "+(cy+y);
               }
             //   ctx.lineTo(cx+x,cy+y);
+            if(tt<200)
               findNext(x+cx,y+cy,false);
           }else{
               if(!first){
@@ -432,12 +435,13 @@
       ctx.strokeStyle = "red";
       if(centerline){
           var svgPath = outline?"":"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
-          for(var k=0;k<1;k++){
+          for(var k=0;k<2;k++){
             for(var i=0;i<contentWidth;i++){
                 for(var j=0;j<contentHeight;j++){
                     var index = (j*contentWidth+i);
                     if(origins[index]>0){
-                        //findNext(i,j,true);
+                        tt=0;
+                        findNext(i,j,true);
                     }
                 }
             }
