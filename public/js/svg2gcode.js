@@ -67,13 +67,13 @@ function svg2gcode(svg, settings) {
     ];
   }
   function getLength(x,y){
-    return Math.sqrt(x*x+y*y)*5000/settings.feedRate;
+    return Math.sqrt(x*x+y*y)*100/settings.feedRate;
   }
   function getPulses(loc){
-    return Math.floor(loc*10*settings.seekRate);
+    return Math.floor(loc*1);
   }
   function getPulsesDist(loc){
-    return Math.floor(loc*10*settings.seekRate)/10;
+    return Math.floor(loc*1);
   }
   var prevPosition = {x:settings.position.x,y:settings.position.y};
   for (var pathIdx = 0, pathLength = paths.length; pathIdx < pathLength; pathIdx++) {
@@ -175,7 +175,7 @@ function svg2gcode(svg, settings) {
     // turn off the spindle
     gcode.push('M3 P0');
     // go home
-    gcode.push('G1 X0 Y0 F'+ settings.seekRate);
+    gcode.push('G1 X0 Y0 F2000');
   }
   return gcode.join('\n');
 }

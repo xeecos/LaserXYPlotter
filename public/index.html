@@ -55,8 +55,10 @@
 					</p>
 					<p style="position:relative;top:-5px;left:0px;">
 						<button id="connectBt" class="btn btn-success" style="width:110px;" onClick="onConnect();">连接</button>
-						<select id="serialport" style="width:105px;margin-top:10px;height:40px;"></select>
-						<select id="speed" style="width:60px;margin-top:10px;height:40px;">
+						<select id="serialport" style="width:235px;margin-top:10px;height:40px;"></select>					
+					</p>
+					<p style="position:relative;top:-15px;left:0px;">
+						<select id="speed" style="width:114px;margin-top:10px;height:40px;">
 							<option value="30">F30</option>
 							<option value="50">F50</option>
 							<option value="60">F60</option>
@@ -75,7 +77,13 @@
 							<option value="3000">F3000</option>
 							<option value="6000">F6000</option>
 						</select>
-						<select id="rotate" style="width:60px;margin-top:10px;height:40px;">
+						<select id="power" style="width:113px;margin-top:10px;height:40px;">
+							<option value="255">最强</option>
+							<option value="128">中等</option>
+							<option value="80">偏弱</option>
+							<option value="40">最弱</option>
+						</select>
+						<select id="rotate" style="width:113px;margin-top:10px;height:40px;">
 							<option value="x">X->Y</option>
 							<option value="y">Y->X</option>
 						</select>

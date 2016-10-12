@@ -493,9 +493,9 @@ function addAccessors($scope) {
 $scope.updateGCode = function(){
     var speed = $("#speed option:selected" ).val();
   consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-          scale : this.modeSelected=="axidraw"?5:0.5,
+          scale : this.modeSelected=="axidraw"?1:0.5,
           feedRate:speed,
-          seekRate:2.28,
+          seekRate:1,
           mode:this.modeSelected,
           power:512
         })
@@ -562,9 +562,9 @@ $scope.printGCode = function() {
       var speed = $("#speed option:selected" ).val();
       consoleGCodeValue = canvas.toSVG();
       consoleGCodeValue = svg2gcode(consoleGCodeValue, {
-            scale : this.modeSelected=="axidraw"?5:0.5,
+            scale : this.modeSelected=="axidraw"?1:0.5,
             feedRate:speed,
-            seekRate:2.28,
+            seekRate:1,
             mode:this.modeSelected,
             power:512
           });

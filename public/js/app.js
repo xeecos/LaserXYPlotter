@@ -244,21 +244,45 @@ function getCurrentArea(){
     var xMin = 10000;
     var yMax = 0;
     var yMin = 10000;
+    var cx = 0;
+    var cy = 0;
     for(var i=0;i<arr.length;i++){
-        if(arr[i].indexOf('G1 ')>-1&&arr[i].indexOf('G1 X0 Y0')==-1){
-            var xx = arr[i].split('X')[1].split(' ')[0]*1;
-            var yy = arr[i].split('Y')[1].split(' ')[0]*1;
-            if(xx>xMax){
-                xMax = xx;
+        if(_mode=="gcode"){
+            if(arr[i].indexOf('G1 ')>-1&&arr[i].indexOf('G1 X0 Y0')==-1){
+                var xx = arr[i].split('X')[1].split(' ')[0]*1;
+                var yy = arr[i].split('Y')[1].split(' ')[0]*1;
+                if(xx>xMax){
+                    xMax = xx;
+                }
+                if(yy>yMax){
+                    yMax = yy;
+                }
+                if(xx<xMin){
+                    xMin = xx;
+                }
+                if(yy<yMin){
+                    yMin = yy;
+                }
             }
-            if(yy>yMax){
-                yMax = yy;
-            }
-            if(xx<xMin){
-                xMin = xx;
-            }
-            if(yy<yMin){
-                yMin = yy;
+        }else{
+            if(arr[i].indexOf("xm")>-1){
+                var pos = arr[i].split(',');
+                var xx = pos[2]*0.1;
+                var yy = pos[3]*0.1;
+                cx += xx;
+                cy += yy;
+                if(cx>xMax){
+                    xMax = cx;
+                }
+                if(cy>yMax){
+                    yMax = cy;
+                }
+                if(cx<xMin){
+                    xMin = cx;
+                }
+                if(cy<yMin){
+                    yMin = cy;
+                }
             }
         }
     }
