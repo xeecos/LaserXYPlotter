@@ -8,6 +8,7 @@ var canvas = new fabric.Canvas('canvas');
 var contentWidth = 2100;
 var contentHeight = 2970;
 var jspanel;
+var _position = {x:0,y:0};
 canvas.setWidth(contentWidth);
 canvas.setHeight(contentHeight);
 fabric.util.addListener(document.getElementById('canvas-content'), 'scroll', function () {
@@ -142,7 +143,8 @@ $(document).on("click",function(){
     var area = getCurrentArea();
     $("#working-area").html("x="+area.left+"mm y="+area.top+"mm 宽="+Math.floor((area.right-area.left)*100)/100+"mm 高="+Math.floor((area.bottom-area.top)*100)/100+"mm");
 })
-$(document).keyup(function (event) {
+
+$("#canvas-content").bind('keydown', function (event) {
     if(event.keyCode==8||event.keyCode==46){
         var activeObject = canvas.getActiveObject(),
             activeGroup = canvas.getActiveGroup();
@@ -177,42 +179,76 @@ $("#start-bt").on("click",startMachine);
 $("#serialport").on("click",refreshSerialPort);
 
 $("#move-up").on("click",function(){
-    sendGCode("G91\n");
-    sendGCode("G1 X0 Y-5\n");
-    sendGCode("G90\n");
+    if(_mode=="gcode"){
+        sendGCode("G91\n");
+        sendGCode("G1 X0 Y-5\n");
+        sendGCode("G90\n");
+    }else{
+        sendGCode("xm,500,0,500\n");
+    }
 });
 $("#move-down").on("click",function(){
-    sendGCode("G91\n");
-    sendGCode("G1 X0 Y5\n");
-    sendGCode("G90\n");
+    if(_mode=="gcode"){
+        sendGCode("G91\n");
+        sendGCode("G1 X0 Y5\n");
+        sendGCode("G90\n");
+    }else{
+        sendGCode("xm,500,0,-500\n");
+    }
 });
 $("#move-left").on("click",function(){
-    sendGCode("G91\n");
-    sendGCode("G1 X-5 Y0\n");
-    sendGCode("G90\n");
+    if(_mode=="gcode"){
+        sendGCode("G91\n");
+        sendGCode("G1 X-5 Y0\n");
+        sendGCode("G90\n");
+    }else{
+        sendGCode("xm,500,-500,0\n");
+    }
 });
 $("#move-right").on("click",function(){
-    sendGCode("G91\n");
-    sendGCode("G1 X5 Y0\n");
-    sendGCode("G90\n");
+    if(_mode=="gcode"){
+        sendGCode("G91\n");
+        sendGCode("G1 X5 Y0\n");
+        sendGCode("G90\n");
+    }else{
+        sendGCode("xm,500,500,0\n");
+    }
 });
 $("#set-zero").on("click",function(){
-    sendGCode("G92 X0 Y0 Z0\n");
-    sendGCode("G90\n");
+    if(_mode=="gcode"){
+        sendGCode("G92 X0 Y0 Z0\n");
+        sendGCode("G90\n");
+    }else{
+        _position.x = 0;
+        _position.y = 0;
+    }
 });
 $("#go-zero").on("click",function(){
-      sendGCode("G90\n");
-      sendGCode("G1 X0 Y0\n");
+    if(_mode=="gcode"){
+        sendGCode("G90\n");
+        sendGCode("G1 X0 Y0\n");
+    }else{
+        addAxisPos(0,0,_position.x/100,_position.y/100);
+        sendNext();
+    }
 });
 $("#preview-area").on("click",function(){
     var area = getCurrentArea();
     _codes = [];
-    _codes.push("G90\n");
-    _codes.push("G1 X"+area.left+" Y"+area.top+" F2000\n");
-    _codes.push("G1 X"+area.right+" Y"+area.top+"\n");
-    _codes.push("G1 X"+area.right+" Y"+area.bottom+"\n");
-    _codes.push("G1 X"+area.left+" Y"+area.bottom+"\n");
-    _codes.push("G1 X"+area.left+" Y"+area.top+"\n");
+    if(_mode=="gcode"){
+        _codes.push("G90\n");
+        _codes.push("G1 X"+area.left+" Y"+area.top+" F2000\n");
+        _codes.push("G1 X"+area.right+" Y"+area.top+"\n");
+        _codes.push("G1 X"+area.right+" Y"+area.bottom+"\n");
+        _codes.push("G1 X"+area.left+" Y"+area.bottom+"\n");
+        _codes.push("G1 X"+area.left+" Y"+area.top+"\n");
+    }else{
+        addAxisPos(area.left,area.top,_position.x/100,_position.y/100);
+        addAxisPos(area.right,0,area.left,0);
+        addAxisPos(0,area.bottom,0,area.top);
+        addAxisPos(area.left,0,area.right,0);
+        addAxisPos(0,area.top,0,area.bottom);
+    }
 
     workingStatus = "running";
     sendNext();
@@ -221,9 +257,19 @@ $("#preview-area").on("click",function(){
 var laserStatus = false;
 $("#switch-laser").on("click",function() {
 	laserStatus = !laserStatus;
-    sendGCode("M3 P"+(laserStatus==true?2:0)+"\n");  
+    if(_mode=="gcode"){
+        sendGCode("M3 P"+(laserStatus==true?4:0)+"\n"); 
+    }else{
+        sendGCode("se,"+(laserStatus==true?1:0)+",50\n"); 
+    }
     $("#switch-laser").html(laserStatus?"激光关闭/抬笔":"激光开启/落笔");
 });
+function addAxisPos(x1,y1,x2,y2){
+    var dx = Math.floor(x1*100 - x2*100);
+    var dy = Math.floor(y1*100 - y2*100);
+    var dist = Math.floor(Math.max(Math.abs(dx),Math.abs(dy)));
+    _codes.push("xm,"+dist+","+dx+","+dy+"\n");
+}
 function getCurrentCodes(){
     var svg = canvas.toSVG();
     var speed = $("#speed option:selected" ).val();
@@ -232,7 +278,7 @@ function getCurrentCodes(){
           feedRate:speed,
           seekRate:speed,
           mode:_mode,
-          power:240,
+          power:$("#power option:selected" ).val(),
           rotate:$("#rotate option:selected").val()=='y'
         })
     $("#working-count").html(canvas.complexity());
@@ -246,6 +292,9 @@ function getCurrentArea(){
     var yMin = 10000;
     var cx = 0;
     var cy = 0;
+    if(arr.length<=3){
+        return {top:0,left:0,right:0,bottom:0};
+    }
     for(var i=0;i<arr.length;i++){
         if(_mode=="gcode"){
             if(arr[i].indexOf('G1 ')>-1&&arr[i].indexOf('G1 X0 Y0')==-1){
@@ -267,8 +316,8 @@ function getCurrentArea(){
         }else{
             if(arr[i].indexOf("xm")>-1){
                 var pos = arr[i].split(',');
-                var xx = pos[2]*0.1;
-                var yy = pos[3]*0.1;
+                var xx = pos[2]*0.01;
+                var yy = pos[3]*0.01;
                 cx += xx;
                 cy += yy;
                 if(cx>xMax){
@@ -328,12 +377,12 @@ function sendNext(){
           sendGCode(cmd+"\n");
       }else{
         if(cmd.indexOf("xm,")>-1){
-            var p = cmd.split(",");
-            _position.x += Math.floor(p[2]);
-            _position.y += Math.floor(p[3]);
             sendGCode(cmd+"\n");
             if(workingStatus == "running"){
-                setTimeout(sendNext,p[1]);
+                 if(_mode=="axidraw"&&cmd.indexOf("xm,")>-1){
+                    var p = cmd.split(",");
+                    setTimeout(sendNext,p[1]);
+                 }
             }
         }else{
             sendGCode(cmd+"\n");
@@ -352,8 +401,14 @@ function goZero(){
 
 }
 function sendGCode(cmd){
-  if(connectionId!=-1){
-	  chrome.serial.send(connectionId, convertStringToArrayBuffer(cmd), function(result){});
+    if(connectionId!=-1){
+        if(_mode=="axidraw"&&cmd.indexOf("xm,")>-1){
+            var p = cmd.split(",");
+            _position.x += Math.floor(p[2]);
+            _position.y += Math.floor(p[3]);
+            console.log(_position.x,_position.y);
+        }
+	    chrome.serial.send(connectionId, convertStringToArrayBuffer(cmd), function(result){});
   }
 }
 
@@ -389,7 +444,25 @@ function onMode(){
         _mode = "gcode";
         $("#mode-bt").html("GCode模式");
     }
+    saveMode(_mode);
 }
+function saveMode(mode){
+    chrome.storage.sync.set({'mode': mode}, function() {
+        // Notify that we saved.
+        console.log('Settings saved');
+    });
+}
+chrome.storage.sync.get('mode', function(res) {
+    console.log(res.mode)
+    if(res.mode){
+        _mode = res.mode;
+        if(_mode=="axidraw"){
+            $("#mode-bt").html("Axidraw模式");
+        }else{
+            $("#mode-bt").html("GCode模式");
+        }
+    }
+});
 chrome.serial.onReceive.addListener(onReceiveCallback);
 function onSend(){
   sendGCode($("#commandSend").val()+"\n");

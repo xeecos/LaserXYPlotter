@@ -67,13 +67,13 @@ function svg2gcode(svg, settings) {
     ];
   }
   function getLength(x,y){
-    return Math.sqrt(x*x+y*y)*100/settings.feedRate;
+    return Math.sqrt(x*x+y*y)*15000/settings.feedRate;
   }
   function getPulses(loc){
     return Math.floor(loc*1);
   }
   function getPulsesDist(loc){
-    return Math.floor(loc*1);
+    return Math.floor(loc*10);
   }
   var prevPosition = {x:settings.position.x,y:settings.position.y};
   for (var pathIdx = 0, pathLength = paths.length; pathIdx < pathLength; pathIdx++) {
