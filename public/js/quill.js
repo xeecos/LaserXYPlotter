@@ -6673,11 +6673,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
+	
 	var config = {
 	  scope: _parchment2.default.Scope.INLINE,
 	  //whitelist: ['serif', 'monospace']
-		whitelist:["Andale-Mono","Comic-Sans-MS","Courier-New","Didot","Futura","Georgia","HeadLineA","Herculanum","Hiragino-Sans-W0","Impact","IndieFlower","Luminari","Nanum-Brush-Script","Optima","Phosphate","PilGi","Sacramento","Savoye-LET","Snell-Roundhand","Zapfino","Yahei","STHeiti","Libian-SC","STKaiti","Xingkai-SC","STSong","STFangsong","Lantinghei-SC","Weibei-SC","Yuppy-SC","Wawati-SC"]
+		//whitelist:["Andale-Mono","Comic-Sans-MS","Courier-New","Didot","Futura","Georgia","HeadLineA","Herculanum","Hiragino-Sans-W0","Impact","IndieFlower","Luminari","Nanum-Brush-Script","Optima","Phosphate","PilGi","Sacramento","Savoye-LET","Snell-Roundhand","Zapfino","Yahei","STHeiti","Libian-SC","STKaiti","Xingkai-SC","STSong","STFangsong","Lantinghei-SC","Weibei-SC","Yuppy-SC","Wawati-SC"]
 	};
 
 	var FontClass = new _parchment2.default.Attributor.Class('font', 'ql-font', config);
@@ -9761,9 +9761,54 @@ return /******/ (function(modules) { // webpackBootstrap
 	var LINESPACINGS = [ false, 's14px', 's18px', 's24px', 's32px', 's64px'];
 
 	var COLORS = ["#000000", "#e60000", "#ff9900", "#ffff00", "#008a00", "#0066cc", "#9933ff", "#ffffff", "#facccc", "#ffebcc", "#ffffcc", "#cce8cc", "#cce0f5", "#ebd6ff", "#bbbbbb", "#f06666", "#ffc266", "#ffff66", "#66b966", "#66a3e0", "#c285ff", "#888888", "#a10000", "#b26b00", "#b2b200", "#006100", "#0047b2", "#6b24b2", "#444444", "#5c0000", "#663d00", "#666600", "#003700", "#002966", "#3d1466"];
+	var FONTS = [false];//"Andale-Mono","Comic-Sans-MS","Courier-New","Didot","Futura","Georgia","HeadLineA","Herculanum","Hiragino-Sans-W0","Impact","IndieFlower","Luminari","Nanum-Brush-Script","Optima","Phosphate","PilGi","Sacramento","Savoye-LET","Snell-Roundhand","Zapfino","Yahei","STHeiti","Libian-SC","STKaiti","Xingkai-SC","STSong","STFangsong","Lantinghei-SC","Weibei-SC","Yuppy-SC","Wawati-SC"];
 
-	var FONTS = [false,"Andale-Mono","Comic-Sans-MS","Courier-New","Didot","Futura","Georgia","HeadLineA","Herculanum","Hiragino-Sans-W0","Impact","IndieFlower","Luminari","Nanum-Brush-Script","Optima","Phosphate","PilGi","Sacramento","Savoye-LET","Snell-Roundhand","Zapfino","Yahei","STHeiti","Libian-SC","STKaiti","Xingkai-SC","STSong","STFangsong","Lantinghei-SC","Weibei-SC","Yuppy-SC","Wawati-SC"];
+	addCSSWithName("Comic-Sans-MS")
+	addCSSWithName("Courier-New")
+	addCSSWithName("Georgia")
+	addCSSWithName("Impact")
+	addCSSWithName("IndieFlower")
+	addCSSWithName("Sacramento")
+	addCSSWithName("Times-New-Roman")
+	addCSSWithName("仿宋")
+	addCSSWithName("琥珀")
+	addCSSWithName("楷体")
+	addCSSWithName("隶书")
+	addCSSWithName("宋体")
+	addCSSWithName("行楷")
+	addCSSWithName("新魏")
+	addCSSWithName("雅黑")
+	
+	function addCSSWithName(fontName){
+		FONTS.push(fontName);
+		addCSS('.ql-editor .ql-font-'+fontName+' {font-family: "'+fontName+'";}');
+		addCSS('.ql-snow .ql-picker.ql-font .ql-picker-label[data-value='+fontName+']::before,.ql-snow .ql-picker.ql-font .ql-picker-item[data-value='+fontName+']::before {content: "'+fontName+'";}');
+		addCSS('.ql-snow .ql-picker.ql-font .ql-picker-item[data-value='+fontName+']::before {font-family: "'+fontName+'";}');
+	}
+	function addCSS(cssText){
+			var style = document.createElement('style'), 
+							head = document.head || document.getElementsByTagName('head')[0]; 
+			style.type = 'text/css';
+			if(style.styleSheet){ //IE
+							var func = function(){
+											try{ 
+															style.styleSheet.cssText = cssText;
+											}catch(e){
 
+											}
+							}
+							if(style.styleSheet.disabled){
+											setTimeout(func,10);
+							}else{
+											func();
+							}
+			}else{ 
+							var textNode = document.createTextNode(cssText);
+							style.appendChild(textNode);
+			}
+			head.appendChild(style);    
+	}
+	
 	var HEADERS = ['1', '2', '3', false];
 
 	var SIZES = ['small', false, 'large', 'huge'];

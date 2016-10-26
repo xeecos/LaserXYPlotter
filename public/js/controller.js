@@ -1,3 +1,6 @@
+var serialport = require('serialport');
+
+  
 function getActiveStyle(styleName, object) {
   object = object || canvas.getActiveObject();
   if (!object) return '';
@@ -739,15 +742,16 @@ $scope.previewArea = function() {
   $scope.refreshSerialPort = function(){
     console.log("refreshSerialPort");
     $("#serialport").empty();
-    chrome.serial.getDevices(function(ports){
-    for(var i=0;i<ports.length;i++){
-      if(ports[i].path.toLowerCase().indexOf("bluetooth")>-1||ports[i].path.toLowerCase().indexOf("cu.")>-1){
-        continue;
+    serialport.list(function(err, ports) {
+      for(var i=0;i<ports.length;i++){
+        console.log(ports[i])
+        if(ports[i].path.toLowerCase().indexOf("bluetooth")>-1||ports[i].path.toLowerCase().indexOf("cu.")>-1){
+          continue;
+        }
+        var op = $('<option></option>').attr('value',ports[i].path).text(ports[i].path);
+        $("#serialport").append(op);
       }
-      var op = $('<option></option>').attr('value',ports[i].path).text(ports[i].path);
-      $("#serialport").append(op);
-    }
-  });  
+    });
   }
 
 

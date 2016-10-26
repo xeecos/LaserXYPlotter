@@ -1,3 +1,7 @@
+var SerialPort  = require('serialport');
+var Storage = require('fs-storage');
+var storage = new Storage('./public/storage/');
+var serial;
 $(document).ready(onInit);
 $(window).resize(onResized);
 var stageW;
@@ -170,7 +174,6 @@ $("#tabs").tabs({
 });
 
 var workingStatus = "idle";
-var connectionId = -1;
 var _codes = [];
 var _totalCodesLength = 0;
 var _startTime;
@@ -342,9 +345,6 @@ function getCurrentArea(){
     return {top:yMin,left:xMin,right:xMax,bottom:yMax};
 }
 function startMachine(){
-    if(connectionId==-1){
-    // return;
-    }
     if(workingStatus=="idle"){
         workingStatus = "running";
         var codes = getCurrentCodes();
@@ -401,14 +401,14 @@ function goZero(){
 
 }
 function sendGCode(cmd){
-    if(connectionId!=-1){
+    if(isConnected()){
         if(_mode=="axidraw"&&cmd.indexOf("xm,")>-1){
             var p = cmd.split(",");
             _position.x += Math.floor(p[2]);
             _position.y += Math.floor(p[3]);
             console.log(_position.x,_position.y);
         }
-	    chrome.serial.send(connectionId, convertStringToArrayBuffer(cmd), function(result){});
+	    serial.write(convertStringToArrayBuffer(cmd));
   }
 }
 
@@ -422,19 +422,31 @@ function convertStringToArrayBuffer(str) {
 }
 function onConnect(){
 	if($("#connectBt").html()=="断开连接"){
-        chrome.serial.disconnect(connectionId,function(result){
-            connectionId = -1;
-            $("#connectBt").html("连接");
-        });
+        serial.close();
 		return;
 	}
     var port = $("#serialport option:selected" ).val();
     if(port){
-        chrome.serial.connect(port, {bitrate: 115200},  function(connectionInfo) {
-            connectionId = connectionInfo.connectionId;
-            $("#connectBt").html("断开连接");
+        serial = new SerialPort(port,{
+                        baudRate: 115200
+                        },function(err){
+        })
+        serial.on('open', function() {
+            if(serial.isOpen()){
+                $("#connectBt").html("断开连接");
+            }
         });
+        serial.on('close', function() {
+            $("#connectBt").html("连接");
+        });
+        serial.on('data',onReceiveCallback)
     }
+}
+function isConnected(){
+    if(serial){
+        return serial.isOpen();
+    }
+    return false;
 }
 function onMode(){
     if(_mode=="gcode"){
@@ -447,23 +459,9 @@ function onMode(){
     saveMode(_mode);
 }
 function saveMode(mode){
-    chrome.storage.sync.set({'mode': mode}, function() {
-        // Notify that we saved.
-        console.log('Settings saved');
-    });
+   storage.setItem('mode',mode);
+   console.log(mode)
 }
-chrome.storage.sync.get('mode', function(res) {
-    console.log(res.mode)
-    if(res.mode){
-        _mode = res.mode;
-        if(_mode=="axidraw"){
-            $("#mode-bt").html("Axidraw模式");
-        }else{
-            $("#mode-bt").html("GCode模式");
-        }
-    }
-});
-chrome.serial.onReceive.addListener(onReceiveCallback);
 function onSend(){
   sendGCode($("#commandSend").val()+"\n");
 }
@@ -484,14 +482,22 @@ function onReceiveCallback(res){
 };
 function refreshSerialPort(){
     $("#serialport").empty();
-    chrome.serial.getDevices(function(ports){
+    console.log("refreshSerialPort")
+    SerialPort.list(function(err,ports){
         for(var i=0;i<ports.length;i++){
-            if(ports[i].path.toLowerCase().indexOf("bluetooth")>-1||ports[i].path.toLowerCase().indexOf("cu.")>-1){
+            if(ports[i].comName.toLowerCase().indexOf("bluetooth")>-1||ports[i].comName.toLowerCase().indexOf("cu.")>-1){
                 continue;
             }
-            var op = $('<option></option>').attr('value',ports[i].path).text(ports[i].path);
+            var op = $('<option></option>').attr('value',ports[i].comName).text(ports[i].comName);
             $("#serialport").append(op);
         }
     });  
 }
 refreshSerialPort();
+_mode = storage.getItem('mode');
+_mode = _mode?_mode:"gcode";
+if(_mode=="axidraw"){
+    $("#mode-bt").html("Axidraw模式");
+}else{
+    $("#mode-bt").html("GCode模式");
+}

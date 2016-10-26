@@ -52,6 +52,7 @@ for(var i=0;i<fonts.length;i++){
 }
 var img = new Image();
 var outputSvg = "";
+
 function onChanged(){
     context_text.clearRect(0, 0, canvas_text.width, canvas_text.height);
     if($("#font option:selected" ).val()=="Zapfino"){

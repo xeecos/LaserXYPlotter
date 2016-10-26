@@ -329,9 +329,6 @@
   font-family: Monaco, Courier New, monospace;
 }
 
-.ql-editor .ql-font-STKaiti {
-  font-family: "STKaiti";
-}
 .ql-editor .ql-font-Libian-SC {
   font-family: "Libian SC";
 }
@@ -860,10 +857,6 @@
   content: 'Monospace';
 }
 
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value=STKaiti]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=STKaiti]::before {
-  content: '楷体';
-}
 
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value=Libian-SC]::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=Libian-SC]::before {
@@ -992,9 +985,6 @@
 }
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=monospace]::before {
   font-family: Monaco, Courier New, monospace;
-}
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value=STKaiti]::before {
-  font-family: STKaiti;
 }
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value=Libian-SC]::before {
   font-family: "Libian SC";

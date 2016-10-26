@@ -1,6 +1,22 @@
 @font-face {
-  font-family: 'Yahei';
+  font-family: '雅黑';
   src: url('fonts/msyh.ttf')  format('truetype')
+}
+@font-face {
+  font-family: '行楷';
+  src: url('fonts/hwxk.ttf')  format('truetype')
+}
+@font-face {
+  font-family: '琥珀';
+  src: url('fonts/hwhp.ttf')  format('truetype')
+}
+@font-face {
+  font-family: '隶书';
+  src: url('fonts/hwls.ttf')  format('truetype')
+}
+@font-face {
+  font-family: '新魏';
+  src: url('fonts/hwxw.ttf')  format('truetype')
 }
 @font-face {
   font-family: 'Sacramento';
