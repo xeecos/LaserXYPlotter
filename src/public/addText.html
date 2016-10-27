@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="xyplotter">
+<head>
+	<meta charset="utf-8">
+	<title>Laser Plotter</title>
+    <link rel="stylesheet" href="css/fonts.css">
+	<link href="css/quill.snow.css" rel="stylesheet"/>
+	<link href="css/monokai-sublime.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/kitchensink.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/katex.min.css" />
+	<script src="js/jquery.js"></script>
+	<script src="js/katex.min.js" type="text/javascript"></script>
+	<script src="js/highlight.min.js" type="text/javascript"></script>
+	<script src="js/quill.js" type="text/javascript"></script>
+    <script src="js/potrace.js"></script>
+
+<style>
+  #standalone-container {
+    margin: 50px auto;
+    width: 1024px;
+  }
+  #editor-container {
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+    
+<div id="standalone-container">
+  <canvas id="canvas" width="1024px" height="100px" style="border:1px solid #c8c8c8;"></canvas>
+  <div id="toolbar-container">
+    <span class="ql-formats">
+      <select class="ql-font"></select>
+      <select class="ql-size"></select>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-bold"></button>
+      <button class="ql-italic"></button>
+    </span>
+    <span class="ql-formats">
+      <select class="ql-linespacing"></select>
+    </span>
+    <span class="ql-formats">
+        <button class="ql-direction" id="direction"></button>
+        <button class="ql-outline" id="outline">轮廓</button>
+        <button class="ql-centerline" id="centerline">中心线</button>
+        <button class="ql-clean"></button>
+    </span>
+    
+  </div>
+  <div id="editor-container"></div>
+
+<script type="text/javascript">
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var DOMURL = window.URL || window.webkitURL || window;
+    var poImg = new Image();
+    var outputSvg = "";
+    var quill = new Quill('#editor-container', {
+        modules: {
+        formula: true,
+        syntax: true,
+        toolbar: '#toolbar-container'
+        },
+        placeholder: '在这里输入文字',
+        theme: 'snow'
+    });
+    function getEditorHeight(){
+      var posX = 0;
+      var posY = 0;
+      var list = quill.getContents().ops;
+      var len = list.length;
+      var maxH = 0;
+      var size = 0;
+      var p = 0;
+      for(var i=0;i<len;i++){
+        var item = list[i];
+        var attributes = item.attributes?item.attributes:{};
+        var t = item.insert.split("\n");
+        size = attributes.size?attributes.size:"normal";
+        var font = attributes.font?attributes.font.split("-").join(" "):"Impact";    
+        var linespacing = (attributes.linespacing?attributes.linespacing.split("s").join("").split("px").join(""):10)*1;
+
+        size = size=="normal"?48:(size=="small"?36:(size=="large"?64:72));
+        if(posX==0){
+            posX += size;
+            posY += size;
+        }else{
+        }
+        ctx.font = size+"px "+font;
+        if(dir=="h"){
+            if(posY==10){
+                posX = 10;
+                posY = size;
+            }else{
+                if(t.length==1){
+                    if(p==0){
+                        posY += linespacing;
+                        p++;
+                    }
+                }else{
+                    p = 0;
+                }
+            }
+            for(var j=0;j<t.length;j++){
+                var m = ctx.measureText(t[j]);
+                var h = size;
+                if(t.length>1&&j<t.length-1){
+                    posX = size;
+                    posY += h;
+                }else{
+                    posX += m.width;
+                }
+            }
+            if(maxH < posY){
+                maxH = posY;
+            }
+        }else{
+            var m = item.insert.split("");
+            if(posY==10){
+                posY = size;
+            }else{
+
+            }
+            for(var f=0;f<m.length;f++){
+                if(m[f]=='\n'){
+                    posY = f==0?10:size;
+                }else{
+                    posY += size;
+                }
+                if(maxH < posY){
+                    maxH = posY;
+                }
+            }
+        }
+      }
+      console.log(maxH);
+      return maxH+size;
+    }
+    var dir = "h";
+    var outline = true;
+    var centerline = true;
+    var contentWidth = 0;
+    var contentHeight = 0;
+    $("#direction").on('click',function(){
+        dir = dir=='h'?'v':'h';
+        textChange();
+    });
+    $("#outline").on('click',function(){
+        outline = !outline;
+        textChange();
+    });
+    $("#centerline").on('click',function(){
+        centerline = !centerline;
+        textChange();
+    });
+    quill.on('text-change', function(delta, oldDelta, source) {
+        textChange();
+    });
+    function textChange(){
+        var list = quill.getContents().ops;
+        var len = list.length;
+        var w = canvas.width;
+        var h = getEditorHeight();
+        var originImage;
+        var potraceImage;
+        canvas.height = h;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#000";
+        var posX = 10;
+        var posY = 10;
+        var p = 0;
+        for(var i=0;i<len;i++){
+            var item = list[i];
+            var attributes = item.attributes?item.attributes:{};
+            var t = item.insert.split("\n");
+            var size = attributes.size?attributes.size:"normal";
+            var bold = attributes.bold?attributes.bold:false;
+            var italic = attributes.italic?attributes.italic:false;
+            var underline = attributes.underline?attributes.underline:false;
+            var font = attributes.font?attributes.font.split("-").join(" "):"Impact";
+            var linespacing = (attributes.linespacing?attributes.linespacing.split("s").join("").split("px").join(""):0)*1;
+            size = size=="normal"?48:(size=="small"?36:(size=="large"?64:72));
+            ctx.font = (bold?"bold ":"")+(italic?"italic ":"")+(underline?"underline ":"")+size+"px "+font;
+            if(dir=="h"){
+                if(posY==10){
+                    posX = 10;
+                    posY = size;
+                }else{
+                    
+                }
+                if(t.length==1){
+                    if(p==0){
+                        posY += linespacing;
+                        p++;
+                    }
+                }else{
+                    p = 0;
+                }
+                for(var j=0;j<t.length;j++){
+                    ctx.fillText(t[j], posX, posY);
+                    var m = ctx.measureText(t[j]);
+                    var h = size;
+                    if(t.length>1&&j<t.length-1){
+                        posX = 10;
+                        posY += h;
+                    }else{
+                        posX += m.width;
+                    }
+                    if(contentWidth<posX+m.width){
+                        contentWidth = posX+m.width+10;
+                    }
+                    if(contentHeight<posY){
+                        contentHeight = posY;
+                    }
+                }
+            }else{
+                var m = item.insert.split("");
+                if(posY==10){
+                    posY = size;
+                }else{
+
+                }
+                for(var f=0;f<m.length;f++){
+                    if(m[f]=='\n'){
+                        posX += ctx.measureText("    ").width+p;
+                        posY = f==0?10:size;
+                    }else{
+                        ctx.fillText(m[f], posX, posY);
+                        posY += size;
+                    }
+                    if(contentHeight<posY){
+                        contentHeight = posY;
+                    }
+                }
+                p = linespacing;
+            }
+        }
+        if(contentWidth<posX){
+            contentWidth = posX;
+        }
+        updateCanvas();
+    }
+    function updateCanvas(){
+      contentWidth = Math.floor(contentWidth);
+      contentHeight = Math.floor(contentHeight);
+      
+      originImage = ctx.getImageData(0,0,contentWidth,contentHeight);
+      
+      Potrace.setParameter({optcurve:false,opttolerance:1,turdsize:1});
+      Potrace.loadImageFromCanvas(canvas);
+      Potrace.process(function(){
+        outputSvg = Potrace.getSVG(1,"curve");
+        var svg = new Blob([outputSvg.split('id="svg"').join('id="svg" width="'+contentWidth+'" height="'+contentHeight+'"')], {type: 'image/svg+xml;charset=utf-8'});
+        var url = DOMURL.createObjectURL(svg);
+        poImg.src = url;
+      });
+    }
+    function updateContent(){
+      var DUMMY_MINUS_ONE = 128;
+      var origins = [];
+      var edges = [];
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(poImg, 0, 0);
+      potraceImage = ctx.getImageData(0,0,contentWidth,contentHeight);
+      
+      for(var i=0;i<contentWidth;i++){
+          for(var j=0;j<contentHeight;j++){
+              var index = (i*contentHeight+j);
+              edges[index] = potraceImage.data[index*4+3]>30;
+              origins[index] = originImage.data[index*4]<120?1:0;
+          }
+      }
+      function calc8connected ( f ) {
+          var n = 0;
+          for( var i = 0; i < 4; i++ ) {
+              var k = 2*i + 1;
+              n += ( !f[k] - !f[k] * !f[k+1] * !f[k+2] );
+          }
+          return n;
+      }
+      function hilditchCondition6 ( f ) {
+          for ( var i = 1; i < 9; i++ ) {
+              if ( f[i] == -1 ) {
+                  var tmp = f[i];
+                  f[i] = 0;
+                  var connect8  = calc8connected(f);
+                  f[i] = tmp;
+                  if ( connect8 != 1 ) {
+                      f[i] = tmp;
+                      return false;
+                  }
+              }
+          }
+          return true;
+      }
+      function hilditchConditions (  width,  height,  x,  y ) {
+          var f = [];
+          f[4] = origins[( y - 1 ) * width + ( x - 1 ) ];
+          f[3] = origins[( y - 1 ) * width + ( x     ) ];
+          f[2] = origins[( y - 1 ) * width + ( x + 1 ) ];
+          f[5] = origins[( y     ) * width + ( x - 1 ) ];
+          f[0] = origins[ ( y     ) * width + ( x     ) ];
+          f[1] = origins[( y     ) * width + ( x + 1 ) ];
+          f[6] = origins[ ( y + 1 ) * width + ( x - 1 ) ];
+          f[7] = origins[ ( y + 1 ) * width + ( x     ) ];
+          f[8] = origins[ ( y + 1 ) * width + ( x + 1 ) ];
+          f[9] = f[1];
+          // replace -1 <-> DUMMY_MINUS_ONE value
+          for ( var i = 0; i < 10; i++ )
+              if ( f[i] == DUMMY_MINUS_ONE )
+                  f[i] = -1;
+          // condition1
+          if ( f[0] == 0 )
+              return false;
+          // condition2
+          var b = 0;
+          for ( var i = 0; i < 4; i++ ) {
+              var k = 2*i + 1;
+              b += ( 1 - Math.abs( f[k] ) );
+          }
+          if ( !( b >= 1 ) )
+              return false;
+          // condition3
+          var e = 0;
+          for ( var i = 1; i < 9; i++ )
+              e += Math.abs( f[i] );
+          if ( !( e >= 2 ) )
+              return false;
+          // condition4
+          var iso = 0;
+          for ( var i = 1; i < 9; i++ )
+              if ( f[i] == 1 )
+                  iso++;
+          if ( !( iso >= 1 ) )
+              return false;
+          // condition5
+          if ( calc8connected ( f ) != 1 )
+              return false;
+          // condition6
+          if ( !hilditchCondition6 ( f ) )
+              return false;
+          return true;
+      }
+
+      function hilditchThinning ( width, height ) {
+          var counter = 0;
+          cc++;
+          // thinning
+          for ( var y = 1; y < height - 1; y++ ) {
+              for ( var x = 1; x < width - 1; x++ ) {
+                  if ( hilditchConditions ( width, height, x, y ) ) {
+                      origins[width * y + x] = DUMMY_MINUS_ONE;
+                      counter++;
+                  }
+              }
+          }
+          // replace -1 into 0
+          for ( var y = 0; y < height; y++ )
+              for ( var x = 0; x < width; x++ )
+                  origins [ width * y + x ] = origins[width * y + x] == DUMMY_MINUS_ONE ? 0 : origins[width * y + x];
+          return counter;
+      }
+
+      imgData = ctx.getImageData(0,0,contentWidth,contentHeight);
+
+      var cc = 0
+      while( 1 ) {
+          if(cc>10){
+              break;
+          }
+          if( !hilditchThinning ( contentWidth,contentHeight-1 ) )
+              break;
+      }
+
+      for(var i=0;i<contentWidth;i++){
+          for(var j=0;j<contentHeight;j++){
+              var index = (i*contentHeight+j);
+              imgData.data[index*4] = 0;
+              imgData.data[index*4+1] = 0;
+              imgData.data[index*4+2] = 0;
+              imgData.data[index*4+3] = 0;
+              if(centerline&&origins[index]>0){
+                  imgData.data[index*4+3] = 255;
+              }else if(outline&&edges[index]>0){
+                  imgData.data[index*4+3] = 255;
+              }
+          }
+      }
+      var tt
+      function findNext(x,y,first){
+          var r = 2;
+          var cx = 0;
+          var cy = 0;
+          var minR = 1000;
+          for(var i=-r;i<=r;i++){
+              for(var j=-r;j<=r;j++){
+                  if(i==0&&j==0){
+                      continue;
+                  }
+                  var index = ((y+j)*contentWidth+(x+i));
+                  if(origins[index]>0){
+                      var dist = i*i+j*j;
+                      if(dist<minR){
+                          minR = dist;
+                          cx = i;
+                          cy = j;
+                      }
+                  }
+              }
+          }
+          tt++;
+          if(cx!=0||cy!=0){
+              var index = ((y+cy)*contentWidth+(x+cx));
+              origins[index] = 0;
+              if(first){
+                  svgPath += "<path d=\"M"+x+" "+y+" L"+(cx+x)+" "+(cy+y);
+                //   ctx.moveTo(x,y);
+              }else{
+                  svgPath +=" L"+(cx+x)+" "+(cy+y);
+              }
+            //   ctx.lineTo(cx+x,cy+y);
+            if(tt<200)
+              findNext(x+cx,y+cy,false);
+          }else{
+              if(!first){
+                  svgPath+="\"  stroke=\"black\" stroke-width=\"1\" fill=\"none\" />"
+              }
+          }
+      }
+      ctx.beginPath();
+      ctx.lineWidth = "1";
+      ctx.strokeStyle = "red";
+      if(centerline){
+          var svgPath = outline?"":"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
+          for(var k=0;k<2;k++){
+            for(var i=0;i<contentWidth;i++){
+                for(var j=0;j<contentHeight;j++){
+                    var index = (j*contentWidth+i);
+                    if(origins[index]>0){
+                        tt=0;
+                        findNext(i,j,true);
+                    }
+                }
+            }
+          }
+          svgPath += outline?"":"</svg>";
+      }
+      outputSvg = outline?outputSvg.split("</svg>").join(svgPath)+"</svg>":svgPath;
+      ctx.putImageData(imgData,0,0);
+      ctx.stroke();
+    }
+    poImg.onload = function () {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(poImg, 0, 0);
+      DOMURL.revokeObjectURL(poImg.src);
+      updateContent();
+    }
+    function insertSVG(){
+        parent.loadSvgFromString(outputSvg);
+        parent.closePanel();
+    }
+</script>
+  <div style="margin:5px 0px">
+      <button onclick="javascript:parent.closePanel();" class="btn btn-warning" style="width:100px;margin-right:10px;">取消</button>
+      <button onclick="insertSVG();" class="btn btn-success" style="width:100px;">确定</button>
+  </div>
+</div>
+</body>
+</html>
