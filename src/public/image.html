@@ -3,27 +3,34 @@
         <title>添加文字</title>
         <link rel="stylesheet" href="css/kitchensink.css">
         <link rel="stylesheet" href="css/bootstrap.css">
-        <script src="lib/jquery.js"></script>
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+        <script src="js/jquery.js"></script>
+<script>if (window.module) module = window.module;</script>
         <script src="js/potrace.js"></script>
-        <script src="lib/fabric.js"></script>
+        <script src="js/fabric.js"></script>
         <link rel="stylesheet" href="css/fonts.css">
     </head>
     <body>
-        <input type="file" id="load-file" style="display:none;"/>
-        <a href="#" onclick="performClick('load-file');">
-        <canvas width="540" height="480" id="canvas-text" class="nav-left"></canvas>
-        </a>
-        <canvas width="540" height="480" id="canvas-svg" class="nav-right"></canvas>
+        <div id="image-content">
+            <input type="file" id="load-file" style="display:none;"/>
+            <a href="#" onclick="performClick('load-file');">
+            <canvas width="640" height="520" id="canvas-image" class="nav-left"></canvas>
+            </a>
+            <canvas width="640" height="520" id="canvas-svg" class="nav-right"></canvas>
+        </div>
+        <div id="controller">
         <hr style="margin:0 0;">
         <p style="margin:10px 20px">
-            <input id="threshold" type="range" style="width:255px;" min="0" max="255" />
+            阈值<input id="threshold" type="range" style="width:255px;" min="0" max="255" />
             <input type="checkbox" id="outline" checked value="" style="margin-top:-2px;">轮廓</input>
             <input type="checkbox" id="centerline" value="" style="margin-top:-2px;">中心线</input>
+            <input type="checkbox" id="grayline" value="" style="margin-top:-2px;">灰度</input>
         </p>
         <p style="margin:5px 20px">
-            <button onclick="javascript:parent.closePanel();" class="btn btn-warning" style="width:100px;margin-right:10px;">取消</button>
+            <button onclick="javascript:performClick('load-file');" class="btn btn-warning" style="width:100px;margin-right:10px;">导入图片</button>
             <button onclick="insertSVG();" class="btn btn-success" style="width:100px;">确定</button>
         </p>
+        </div>
         <script src="js/image_app.js"></script>
     </body>
 </html>
