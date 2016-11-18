@@ -152,6 +152,16 @@ textarea {
   overflow: auto;
   vertical-align: top;
 }
+#controller{
+  position:absolute;
+  left:40%;
+  bottom:30px;
+}
+#image-content{
+  width:1280;
+  margin:40px auto;
+  text-align: center;
+}
 @media print {
   * {
     text-shadow: none !important;

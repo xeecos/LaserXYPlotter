@@ -18,9 +18,12 @@ function svg2gcode(svg, settings) {
   var scale=function(val) {
     return Math.floor(val * settings.scale*100)/100;
   },
-  paths = SVGReader.parse(svg, {}).allcolors,
+  all = SVGReader.parse(svg, {}),
+  paths = all.allcolors,
+  images = all.allimages,
   gcode,
   path;
+  console.log(images)
   var idx = paths.length;
   
   while(idx--) {

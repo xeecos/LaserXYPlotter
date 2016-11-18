@@ -1,5 +1,7 @@
-var canvas_text = document.getElementById("canvas-text");
-var context_text = canvas_text.getContext("2d");
+var canvas_image = document.getElementById("canvas-image");
+var canvas_svg = document.getElementById("canvas-svg");
+var context_image = canvas_image.getContext("2d");
+var context_svg = canvas_svg.getContext("2d");
 var DOMURL = window.URL || window.webkitURL || window;
 var platform = navigator.platform;
 function performClick(elemId) {
@@ -14,8 +16,6 @@ function performClick(elemId) {
 var img = new Image();
 var outputSvg = "";
 var originImg = new Image();
-var canvas_svg = document.getElementById("canvas-svg");
-var context_svg = canvas_svg.getContext("2d");
 function fileSelect(e) {
     e = e || window.event;
 
@@ -35,31 +35,133 @@ function fileSelect(e) {
     }
 }
 document.getElementById('load-file').addEventListener('change', fileSelect, false);
+var paths = [];
 function loadOriginImg(url){
-    context_text.fillStyle = "rgba(255, 255, 255, 1)";
-    context_text.fillRect(0, 0, canvas_text.width,canvas_text.height);
-    context_text.drawImage(originImg,0,0);
+    context_image.fillStyle = "rgba(255, 255, 255, 1)";
+    context_image.fillRect(0, 0, canvas_image.width,canvas_image.height);
+    var outputWidth = canvas_image.width;
+    var outputHeight = outputWidth/originImg.width*originImg.height;
+    if(outputHeight>canvas_image.height){
+        outputHeight = canvas_image.height
+        outputWidth = outputHeight/originImg.height*originImg.width;
+    }
+    context_image.drawImage(originImg,0,0,originImg.width,originImg.height,0,0,outputWidth,outputHeight);
+    var pixels = context_image.getImageData(0,0,canvas_image.width,canvas_image.height);
+    var threshold = $("#grayline").prop('checked')?-1:$("#threshold").val();
+    var first = false;
+    var prevGray = 0;
+    paths = [];
+    var cc=220;
+    for(var i=0;i<canvas_image.height;i++){
+        for(var j=0;j<canvas_image.width;j++){
+            var index = (i*canvas_image.width+j);
+            var l = Math.floor(gray(pixels.data[index*4],pixels.data[index*4+1],pixels.data[index*4+2]));
+            
+            if(threshold==-1){
+                if(l>cc){
+                    l = 255;
+                    pixels.data[index*4+3]=0;
+                }
+                pixels.data[index*4] = l;
+                pixels.data[index*4+1] = l;
+                pixels.data[index*4+2] = l;
+                if(!first){
+                    if(l<cc){
+                        first = true;
+                        addPath(j,i);
+                    }else{
+                        continue;
+                    }
+                }else{
+                    if(l==prevGray){
+                        continue;
+                    }else{
+                        var c = ("0"+prevGray.toString(16)).substr(-2,2);
+                        endPath(j,i,c+c+c);
+                        if(l<cc&&j<canvas_image.width-1){
+                            first = true;
+                            addPath(j,i);
+                        }
+                    }
+                }
+                prevGray = l;
+                continue;
+            }
+            if(l<threshold){
+                pixels.data[index*4] = 0;
+                pixels.data[index*4+1] = 0;
+                pixels.data[index*4+2] = 0;
+            }else{
+                pixels.data[index*4] = 255;
+                pixels.data[index*4+1] = 255;
+                pixels.data[index*4+2] = 255;
+                pixels.data[index*4+3] = 255;
+            }
+        }
+    }
+    context_image.putImageData(pixels,0,0);
     
-    Potrace.setParameter({optcurve:false,opttolerance:1,turdsize:1});
-    Potrace.loadImageFromUrl(url);
-    Potrace.process(function(){
-        outputSvg = Potrace.getSVG(1,"curve");
-        var svg = new Blob([outputSvg.split('id="svg"').join('id="svg" width="'+canvas_text.width+'" height="'+canvas_text.height+'"')], {type: 'image/svg+xml;charset=utf-8'});
-        var url = DOMURL.createObjectURL(svg);
-        img.src = url;
-    });
+    if($("#grayline").prop('checked')){
+        var imageSvg = '<image width="'+canvas_image.width+'" height="'+canvas_image.height+'" xlink:href="'+canvas_image.toDataURL("image/png")+'"/>';
+        outputSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" width=\""+canvas_image.width+'" height="'+canvas_image.height+"\">"+imageSvg+"</svg>";//paths.join("")
+        var svg = new Blob([outputSvg], {type: 'image/svg+xml;charset=utf-8'});
+        var svg_url = DOMURL.createObjectURL(svg);
+        img.src = svg_url;
+    }else{
+        Potrace.setParameter({optcurve:false,opttolerance:1,turdsize:1});
+        Potrace.loadImageFromCanvas(canvas_image);
+        Potrace.process(function(){
+            outputSvg = Potrace.getSVG(1,"curve");
+            var svg = new Blob([outputSvg.split('id="svg"').join('id="svg" width="'+canvas_image.width+'" height="'+canvas_image.height+'"')], {type: 'image/svg+xml;charset=utf-8'});
+            var svg_url = DOMURL.createObjectURL(svg);
+            img.src = svg_url;
+        });
+    }
 }
-// onChanged();
 
+function addPath(x,y){
+    paths.push("<path d=\"M"+x+" "+y);
+}
+function endPath(x,y,c){
+    paths[paths.length-1]+=" L"+x+" "+y+"\" style=\"stroke:#"+c+";  fill:none;\" />"
+}
 $("#outline").on('change',onChanged);
 $("#centerline").on('change',onChanged);
+$("#grayline").on('change',onGrayChanged);
 $("#threshold").on('change',onChanged);
 function insertSVG(){
     parent.loadSvgFromString(outputSvg);
     parent.closePanel();
 }
-img.onload = onChanged;
+img.onload = onImageChanged;
+
+function gray(r,g,b){
+    return r*0.3+g*0.6+b*0.1;
+}
+function onImageChanged(){
+    if($("#grayline").prop('checked')){
+        context_svg.clearRect(0, 0, canvas_svg.width, canvas_svg.height);
+        context_svg.drawImage(img, 0, 0);
+    }else{
+        calc();
+    }
+}
+function onGrayChanged(){
+    if($("#grayline").prop('checked')){
+        $("#outline").prop('checked',false);
+        $("#centerline").prop('checked',false);
+        $("#outline").attr("disabled", true);
+        $("#centerline").attr("disabled", true);
+    }else{
+        $("#outline").removeAttr("disabled");
+        $("#centerline").removeAttr("disabled");
+    }
+    loadOriginImg();
+}
 function onChanged() {
+    loadOriginImg();
+}
+function calc(){
     var outline = $("#outline").prop('checked');
     var centerline = $("#centerline").prop('checked');
     context_svg.clearRect(0, 0, canvas_svg.width, canvas_svg.height);
@@ -68,14 +170,14 @@ function onChanged() {
 
     var imgData = context_svg.getImageData(0,0,canvas_svg.width,canvas_svg.height);
 
-    var pixels = context_text.getImageData(0,0,canvas_text.width,canvas_text.height);
+    var pixels = context_image.getImageData(0,0,canvas_image.width,canvas_image.height);
     var origins = [];
     
     var edges = [];
     var threshold = $("#threshold").val();
-    for(var i=0;i<canvas_text.width;i++){
-        for(var j=0;j<canvas_text.height;j++){
-            var index = (i*canvas_text.height+j);
+    for(var i=0;i<canvas_image.width;i++){
+        for(var j=0;j<canvas_image.height;j++){
+            var index = (i*canvas_image.height+j);
             edges[index] = imgData.data[index*4+3]>threshold;
             origins[index] = pixels.data[index*4]<threshold?1:0;
         }
@@ -249,4 +351,5 @@ function onChanged() {
     outputSvg = outline?outputSvg.split("</svg>").join(svgPath)+"</svg>":svgPath;
     context_svg.putImageData(imgData,0,0);
     context_svg.stroke();
+    console.log("finish")
 }

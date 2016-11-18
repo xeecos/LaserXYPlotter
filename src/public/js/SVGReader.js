@@ -65,6 +65,7 @@ SVGReader = {
 
     // let the fun begin
     var node = {}
+    this.boundarys.allimages = [];
     this.boundarys.allcolors = []  // TODO: sort by color
     node.stroke = [255,0,0];
     node.xformToWorld = [1,0,0,1,0,0]
@@ -511,6 +512,7 @@ SVGReader = {
     image : function(parser, tag, node) {
       // not supported
       // has transform and style attributes
+      parser.addImage(tag,node);
     },
 
     defs : function(parser, tag, node) {
@@ -873,6 +875,9 @@ SVGReader = {
       node.path.push(subpath);
       subpath = [];
     }
+  },
+  addImage:function(tag,node){
+      this.boundarys.allimages.push([tag,node])
   },
 
 
