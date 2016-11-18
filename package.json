@@ -1,18 +1,25 @@
 {
-  "name": "Laser Plotter",
-  "main": "public/index.html",
-  "background": "index.js",
-  "version":"1.0.1",
-  "window": {
-    "icon": "assets/icon.png",
-    "frame": true,
-    "transparent": false,
-    "width": 1090,
-    "height": 665,
-    "toolbar":false,
-    "resizable": true
+  "name": "laserXY",
+  "version": "1.0.0",
+  "description": "laserXY 1.0",
+  "main": "./app/main.js",
+  "scripts": {
+    "rebuild": "electron-rebuild -f -w serialport",
+    "start": "electron ."
   },
+  "repository": "https://github.com/xeecos/laserxyplotter",
+  "keywords": [
+    "laserXY"
+  ],
+  "author": "xeecos",
+  "license": "MIT",
   "devDependencies": {
-    "nw-builder": "^2.2.6"
+    "bluetooth-serial-port": "^2.1.0",
+    "electron": "^1.4.6",
+    "electron-prebuilt": "^1.4.6",
+    "electron-rebuild": "^1.4.0",
+    "express": "^4.14.0",
+    "node-hid": "^0.5.2",
+    "serialport": "^4.0.6"
   }
 }
